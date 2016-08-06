@@ -1,0 +1,16 @@
+#!/bin/sh
+
+SOURCE=$1
+DEST=$2 
+
+cp $SOURCE $DEST
+
+# Step 1) Convert all &eax; to {\eax}
+REGS=("ax ah al eax ebx ecx edx edi esp ebp eip cl dl eflags")
+for REG in $REGS
+do
+	echo $REG
+	perl -pi -e "s/&${REG};/{\\\\${REG}Reg}/g;" $DEST
+	perl -pi -e "s/&${REG};/{\\\\${REG}RegIdx}/g;" $DEST
+done
+
