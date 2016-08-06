@@ -1,0 +1,185 @@
+<appendix id="syscallap">
+<title>Important System Calls</title>
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+
+<para>
+These are some of the more important system calls to use when dealing with
+Linux.  For most cases, however, it is best to use library functions rather
+than direct system calls, because the system calls were designed to be
+minimalistic while the library functions were designed to be easy to
+program with.  For information about the Linux C library, see the manual
+at http://www.gnu.org/software/libc/manual/
+</para>
+
+<para>
+Remember that &eax-indexed; holds the system call numbers, and that the
+return values and error codes are also stored in &eax;.
+<indexterm><primary>&percent;eax</primary></indexterm>
+<indexterm><primary>&percent;ebx</primary></indexterm>
+<indexterm><primary>&percent;ecx</primary></indexterm>
+<indexterm><primary>&percent;edx</primary></indexterm>
+</para>
+
+<table>
+<title>Important Linux System Calls</title>
+<tgroup cols="6" colsep="1" rowsep="1">
+<colspec colnum="6" colwidth="3*" />
+<thead>
+<row>
+<entry>&eax;</entry><entry>Name</entry><entry>&ebx;</entry><entry>&ecx;</entry><entry>&edx;</entry><entry>Notes</entry>
+</row>
+</thead>
+<tbody>
+<row>
+	<entry>1</entry>
+	<entry>exit<indexterm zone="syscallap"><primary>exit</primary></indexterm></entry>
+	<entry>return value (int)</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Exits the program</entry>
+</row>
+<row>
+	<entry>3</entry>
+	<entry>read<indexterm zone="syscallap"><primary>read</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry>buffer start</entry>
+	<entry>buffer size (int)</entry>
+	<entry>Reads into the given buffer</entry>
+</row>
+<row>
+	<entry>4</entry>
+	<entry>write<indexterm zone="syscallap"><primary>write</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry>buffer start</entry>
+	<entry>buffer size (int)</entry>
+	<entry>Writes the buffer to the file descriptor</entry>
+</row>
+<row>
+	<entry>5</entry>
+	<entry>open<indexterm zone="syscallap"><primary>open</primary></indexterm></entry>
+	<entry>null-terminated file name</entry>
+	<entry>option list</entry>
+	<entry>permission mode</entry>
+	<entry>Opens the given file.  Returns the file descriptor or an error number.</entry>
+</row>
+<row>
+	<entry>6</entry>
+	<entry>close<indexterm zone="syscallap"><primary>close</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Closes the give file descriptor</entry>
+</row>
+<row>
+	<entry>12</entry>
+	<entry>chdir<indexterm zone="syscallap"><primary>chdir</primary></indexterm></entry>
+	<entry>null-terminated directory name</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Changes the current directory of your program.</entry>
+</row>
+<row>
+	<entry>19</entry>
+	<entry>lseek<indexterm zone="syscallap"><primary>lseek</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry>offset</entry>
+	<entry>mode</entry>
+	<entry>Repositions where you are in the given file.  The mode (called the "whence") should be 0 for absolute positioning, and 1 for relative positioning.</entry>
+</row>
+<row>
+	<entry>20</entry>
+	<entry>getpid<indexterm zone="syscallap"><primary>getpid</primary></indexterm></entry>
+	<entry></entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Returns the process ID of the current process.</entry>
+</row>
+<row>
+	<entry>39</entry>
+	<entry>mkdir<indexterm zone="syscallap"><primary>mkdir</primary></indexterm></entry>
+	<entry>null-terminated directory name</entry>
+	<entry>permission mode</entry>
+	<entry></entry>
+	<entry>Creates the given directory.  Assumes all directories leading up to it already exist.</entry>
+</row>
+<row>
+	<entry>40</entry>
+	<entry>rmdir<indexterm zone="syscallap"><primary>rmdir</primary></indexterm></entry>
+	<entry>null-terminated directory name</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Removes the given directory.</entry>
+</row>
+<row>
+	<entry>41</entry>
+	<entry>dup<indexterm zone="syscallap"><primary>dup</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Returns a new file descriptor that works just like the existing file descriptor.</entry>
+</row>
+<row>
+	<entry>42</entry>
+	<entry>pipe<indexterm zone="syscallap"><primary>pipe</primary></indexterm></entry>
+	<entry>pipe array</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Creates two file descriptors, where writing on one produces data to read on the other and vice-versa.  &ebx-indexed; is a pointer to two words of storage to hold the file descriptors.</entry>
+</row>
+<row>
+	<entry>45</entry>
+	<entry>brk<indexterm zone="syscallap"><primary>brk</primary></indexterm></entry>
+	<entry>new system break</entry>
+	<entry></entry>
+	<entry></entry>
+	<entry>Sets the system break (i.e. - the end of the data section).  If the system break is 0, it simply returns the current system break.</entry>
+</row>
+<row>
+	<entry>54</entry>
+	<entry>ioctl<indexterm zone="syscallap"><primary>ioctl</primary></indexterm></entry>
+	<entry>file descriptor</entry>
+	<entry>request</entry>
+	<entry>arguments</entry>
+	<entry>This is used to set parameters on device files.  Its actual usage varies based on the type of file or device your descriptor references.</entry>
+</row>
+<!--
+<row>
+	<entry></entry>
+	<entry></entry>
+	<entry></entry>
+	<entry></entry>
+	<entry></entry>
+	<entry></entry>
+</row>
+-->
+</tbody>
+</tgroup>
+</table>
+
+<para>
+A more complete listing of system calls, along with additional information
+is available at http://www.lxhp.in-berlin.de/lhpsyscal.html
+You can also get more information about a system call by typing in 
+<literal>man 2 SYSCALLNAME</literal> which will return you the information 
+about the system call from section 2 of the UNIX manual<indexterm><primary>UNIX manual</primary></indexterm>.  However, this 
+refers to the usage of the system call from the C programming language<indexterm><primary>C programming language</primary></indexterm>, 
+and may or may not be directly helpful.
+</para>
+
+<para>
+For information on how system calls<indexterm><primary>system calls</primary></indexterm> are implemented on Linux, see the Linux Kernel 2.4 Internals section on how system calls are implemented 
+at http://www.faqs.org/docs/kernel_2_4/lki-2.html#ss2.11
+</para>
+
+</appendix>

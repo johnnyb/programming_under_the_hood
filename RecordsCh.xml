@@ -1,0 +1,457 @@
+<chapter id="records">
+<title>Reading and Writing Simple Records</title>
+
+<para>
+As mentioned in <xref linkend="filesch" />,
+many applications deal with data that is <emphasis>persistent<indexterm><primary>persistent</primary></indexterm></emphasis> - 
+meaning that the data lives longer than the program by being stored on disk 
+in files.  You can shut down the program and open it back up, and you are
+back where you started.  Now, there are two basic kinds of persistent
+data - structured and unstructured.  Unstructured data<indexterm><primary>unstructured data</primary></indexterm> is like what we
+dealt with in the <literal>toupper</literal> program.  It just dealt with text files that
+were entered by a person.  The contents of the files weren't usable by
+a program because a program can't interpret what the user is trying to
+say in random text.
+</para>
+
+<para>
+Structured data<indexterm><primary>structured data</primary></indexterm>, on the other hand, is what computers excel at handling.
+Structured data is data that is divided up into fields<indexterm><primary>fields</primary></indexterm> and records<indexterm><primary>records</primary></indexterm>.  For the most
+part, the fields and records are fixed-length.  Because the data is
+divided into fixed-length records and fixed-format fields, the computer can interpret
+the data.  Structured data can contain variable-length fields,
+but at that point you are usually better off with a database<indexterm><primary>database</primary></indexterm>.
+<footnote>
+<para>
+A database is a program which handles persistent structured data for you.
+You don't have to write the programs to read and write the data to disk,
+to do lookups, or even to do basic processing.  It is a very high-level
+interface to structured data which, although it adds some overhead and
+additional complexity, is very useful for complex data processing tasks.
+References for learning how databases work are listed in <xref linkend="wherenextch" />.
+</para>
+</footnote>
+</para>
+
+<para>
+This chapter deals with reading and writing simple fixed-length records<indexterm><primary>records</primary></indexterm>.
+Let's say we wanted to store some basic information about people
+we know.  We could imagine the following example fixed-length record about people:
+</para>
+
+<itemizedlist>
+<listitem><para>Firstname - 40 bytes</para></listitem>
+<listitem><para>Lastname - 40 bytes</para></listitem>
+<listitem><para>Address - 240 bytes</para></listitem>
+<listitem><para>Age - 4 bytes</para></listitem>
+</itemizedlist>
+
+<para>
+In this, everything is character data except for the age, which is
+simply a numeric field, using a standard 4-byte word (we could just
+use a single byte for this, but keeping it at a word makes it easier
+to process).
+</para>
+
+<para>
+In programming, you often have certain definitions that you will use
+over and over again within the program, or perhaps within several
+programs.  It is good to separate these out into files that are 
+simply included into the assembly language files as needed.  For
+example, in our next programs we will need to access the different
+parts of the record above.  This means we need to know the offsets<indexterm><primary>offsets</primary></indexterm>
+of each field from the beginning of the record in order to access 
+them using base pointer addressing<indexterm><primary>base pointer addressing mode</primary></indexterm>.
+The following constants describe the offsets to the above structure.
+Put them in a file named
+<filename>record-def.s</filename>:
+</para>
+
+<programlisting>
+&record-def;
+</programlisting>
+
+<para>
+In addition, there are several constants that we have been defining over
+and over in our programs, and it is useful to put them in a file, so that
+we don't have to keep entering them.  Put the following
+constants<indexterm><primary>constants</primary></indexterm> in a file called <filename>linux.s</filename>:
+</para>
+
+<programlisting>
+&linux;
+</programlisting>
+
+<para>
+We will write three programs in this chapter using the structure defined in <filename>record-def.s</filename>.
+The first program will build a file containing several records as defined
+above. The second program will display the records in the file.  The 
+third program will add
+1 year to the age of every record.
+</para>
+
+<para>
+In addition to the standard constants we will be using throughout the
+programs, there are also two functions that we will be using in 
+several of the programs - one which reads a record and one which
+writes a record.
+</para>
+
+<para>
+What parameters do these functions need in order to operate?  We
+basically need:
+</para>
+
+<itemizedlist>
+<listitem><para>The location of a buffer that we can read a record into</para></listitem>
+<listitem><para>The file descriptor that we want to read from or write to</para></listitem>
+</itemizedlist>
+
+<para>
+Let's look at our reading function first:
+</para>
+
+<programlisting>
+&read-record;
+</programlisting>
+
+<para>
+It's a pretty simple function.  It just reads data the size of our structure
+into an appropriately sized buffer from the given file descriptor.  The 
+writing one is similar:
+</para>
+
+<programlisting>
+&write-record;
+</programlisting>
+
+<para>
+Now that we have our basic definitions down, we are ready to write
+our programs.
+</para>
+
+<sect1>
+<title>Writing Records</title>
+
+<para>
+This program will simply write some hardcoded records to disk.
+It will:
+</para>
+
+<itemizedlist>
+<listitem><para>Open the file</para></listitem>
+<listitem><para>Write three records</para></listitem>
+<listitem><para>Close the file</para></listitem>
+</itemizedlist>
+
+<para>
+Type the following code into a file called <filename>write-records.s</filename>:
+<indexterm><primary>.rept</primary></indexterm>
+<indexterm><primary>.endr</primary></indexterm>
+<indexterm><primary>padding</primary></indexterm>
+<indexterm><primary>null</primary></indexterm>
+</para>
+
+<programlisting>
+&write-records;
+</programlisting>
+
+<!-- FIXME - need to add info on how to use a hexdump to read the values -->
+
+<para>
+This is a fairly simple program.  It merely consists of defining
+the data we want to write in the <literal>.data<indexterm><primary>.data</primary></indexterm></literal> section,
+and then calling the right system calls and function calls to
+accomplish it.  For a refresher of all of the system calls used,
+see <xref linkend="syscallap" />.
+</para>
+
+<para>
+You may have noticed the lines:
+</para>
+
+<programlisting>
+	.include "linux.s"
+	.include "record-def.s"
+</programlisting>
+
+<para>
+<indexterm><primary>.include</primary></indexterm>
+These statements cause the given files to basically be pasted right there
+in the code.  You don't need to do this with functions, because the
+linker<indexterm><primary>linker</primary></indexterm> can take care of combining functions exported with 
+<literal>.globl<indexterm><primary>.globl</primary></indexterm></literal>.  However, constants<indexterm><primary>constants</primary></indexterm> defined in another file
+do need to be imported in this way.
+</para>
+
+<para>
+Also, you may have noticed the use of a new assembler directive, 
+<literal>.rept<indexterm><primary>.rept</primary></indexterm></literal>.  This directive repeats the contents of
+the file between the <literal>.rept</literal> and the <literal>.endr<indexterm><primary>.endr</primary></indexterm></literal>
+directives the number of times specified after <literal>.rept</literal>.
+This is usually used the way we used it - to pad<indexterm><primary>pad</primary></indexterm> values in the 
+<literal>.data<indexterm><primary>.data</primary></indexterm></literal> section.  In our case, we are adding null characters<indexterm><primary>null characters</primary></indexterm>
+to the end of each field until they are their defined lengths.
+</para>
+
+<para>
+To build the application, run the commands:
+</para>
+
+<programlisting>
+as write-records.s -o write-records.o
+as write-record.s -o write-record.o
+ld write-record.o write-records.o -o write-records
+</programlisting>
+
+<para>
+Here we are assembling two files separately, and then combining them
+together using the linker<indexterm><primary>linker</primary></indexterm>.  
+To run the program, just type the following:
+</para>
+
+<programlisting>
+./write-records
+</programlisting>
+
+<para>
+This will cause a file called <filename>test.dat</filename> to be created 
+containing the records.  However, since they contain non-printable characters
+(the null character, specifically), they may not be viewable by a text 
+editor.  Therefore we need the next program to read them for us.
+</para>
+
+</sect1>
+
+<sect1>
+<title>Reading Records</title>
+
+<para>
+Now we will consider the process of reading records.  In this 
+program, we will read each record and display the first name listed
+with each record.
+</para>
+
+<para>
+Since each person's name is a different length, we will need a function
+to count the number of characters we want to write.  Since we pad each
+field with null characters<indexterm><primary>null characters</primary></indexterm>, we can simply count characters until we 
+reach a null character.<footnote><para>If you have used C, this is what
+the <literal>strlen<indexterm><primary>strlen</primary></indexterm></literal> function does.</para></footnote>
+Note that this means our records must contain at least
+one null character each.  
+</para>
+
+<para>
+Here is the code.  Put it in a file called <filename>count-chars.s</filename>:
+</para>
+
+<programlisting>
+&count-chars;
+</programlisting>
+
+<para>
+As you can see, it's a fairly straightforward function.  It simply 
+loops through the bytes, counting as it goes, until it hits a null 
+character.  Then it returns the count.
+</para>
+
+<para>
+Our record-reading program will be fairly straightforward, too.  
+It will do the following:
+</para>
+
+<itemizedlist>
+<listitem><para>Open the file</para></listitem>
+<listitem><para>Attempt to read a record</para></listitem>
+<listitem><para>If we are at the end of the file, exit</para></listitem>
+<listitem><para>Otherwise, count the characters of the first name</para></listitem>
+<listitem><para>Write the first name to <literal>STDOUT</literal></para></listitem>
+<listitem><para>Write a newline to <literal>STDOUT</literal></para></listitem>
+<listitem><para>Go back to read another record</para></listitem>
+</itemizedlist>
+
+<para>
+To write this, we need one more simple function - a function to write out
+a newline to <literal>STDOUT</literal>.  Put the following code into 
+<filename>write-newline.s</filename>:
+</para>
+
+<programlisting>
+&write-newline-s;
+</programlisting>
+
+<para>
+Now we are ready to write the main program.  Here is the code to
+<filename>read-records.s</filename>:
+</para>
+
+<programlisting>
+&read-records;
+</programlisting>
+
+<para>
+To build this program, we need to assemble all of the
+parts and link them together:
+</para>
+
+<programlisting>
+as read-record.s -o read-record.o
+as count-chars.s -o count-chars.o
+as write-newline.s -o write-newline.o
+as read-records.s -o read-records.o
+ld read-record.o count-chars.o write-newline.o \
+   read-records.o -o read-records
+</programlisting>
+
+<para>
+The backslash in the first line simply means that the command continues on 
+the next line.
+You can run your program by doing <literal>./read-records</literal>.
+</para>
+
+<para>
+As you can see, this program opens the file and then runs a loop of 
+reading, checking for the end of file, and writing the firstname.  
+The one construct that might be new is the line that says:
+</para>
+
+<programlisting>
+	pushl  $RECORD_FIRSTNAME + record_buffer
+</programlisting>
+
+<para>
+It looks like we are combining and add instruction with a push instruction,
+but we are not.  You see, both <literal>RECORD_FIRSTNAME</literal> and
+<literal>record_buffer</literal> are constants<indexterm><primary>constants</primary></indexterm>.  The first is a direct
+constant, created through the use of a <literal>.equ<indexterm><primary>.equ</primary></indexterm></literal> directive,
+while the latter is defined automatically by the assembler<indexterm><primary>assembler</primary></indexterm> through its use
+as a label (it's value being the address<indexterm><primary>address</primary></indexterm> that the data that follows it will
+start at).  Since they are both constants that the assembler knows, it
+is able to add them together while it is assembling your program, so the
+whole instruction is a single immediate-mode<indexterm><primary>immediate mode addressing</primary></indexterm> push of a single constant.
+</para>
+
+<para>
+The <literal>RECORD_FIRSTNAME</literal> constant<indexterm><primary>constants</primary></indexterm> is the number of bytes
+after the beginning of a record before we hit the first name.
+<literal>record_buffer</literal> is the name of our buffer for holding
+records.  Adding them together gets us the address of the first name
+member of the record stored in <literal>record_buffer</literal>.
+</para>
+
+</sect1>
+
+<sect1>
+<title>Modifying the Records</title>
+
+<para>
+In this section, we will write a program that:
+</para>
+
+<itemizedlist>
+<listitem><para>Opens an input and output file</para></listitem>
+<listitem><para>Reads records from the input</para></listitem>
+<listitem><para>Increments the age</para></listitem>
+<listitem><para>Writes the new record to the output file</para></listitem>
+</itemizedlist>
+
+<para>
+Like most programs we've encountered recently, this program is 
+pretty straightforward.<footnote><para>You will find that after learning
+the mechanics of programming, most programs are pretty straightforward
+once you know exactly what it is you want to do.  Most of them initialize
+data, do some processing in a loop, and then clean everything up.</para></footnote>
+</para>
+
+<programlisting>
+&add-year;
+</programlisting>
+
+<para>
+You can type it in as <filename>add-year.s</filename>.  To build it, type
+the following<footnote><para>This assumes that you have already built
+the object files <filename>read-record.o</filename> and 
+<filename>write-record.o</filename> in the previous examples.  If not,
+you will have to do so.</para></footnote>:
+</para>
+
+<programlisting>
+as add-year.s -o add-year.o
+ld add-year.o read-record.o write-record.o -o add-year
+</programlisting>
+
+<para>
+To run the program, just type in the following<footnote>
+<para>This is assuming you created the file in a previous run of 
+<literal>write-records</literal>.  If not, you need to run 
+<literal>write-records</literal> first before running this 
+program.</para></footnote>:
+</para>
+
+<programlisting>
+./add-year
+</programlisting>
+
+<para>
+This will add a year to every record listed in <filename>test.dat</filename>
+and write the new records to the file <filename>testout.dat</filename>.
+</para>
+
+<para>
+As you can see, writing fixed-length records is pretty simple.  You 
+only have to read in blocks of data to a buffer, process them, and write
+them back out.  Unfortunately, this program doesn't write the new ages
+out to the screen so you can verify your program's effectiveness.  This is because we
+won't get to displaying numbers until <xref linkend="linking" /> and
+<xref linkend="countingchapter" />.
+After reading those you may want to come back and rewrite this program to
+display the numeric data that we are modifying.
+</para>
+
+</sect1>
+
+<sect1>
+<title>Review</title>
+
+<sect2>
+<title>Know the Concepts</title>
+
+<itemizedlist>
+<listitem><para>What is a record?</para></listitem>
+<listitem><para>What is the advantage of fixed-length records over variable-length records?</para></listitem>
+<listitem><para>How do you include constants in multiple assembly source files?</para></listitem>
+<listitem><para>Why might you want to split up a project into multiple source files?</para></listitem>
+<listitem><para>What does the instruction <literal>incl record_buffer + RECORD_AGE</literal> do?  What addressing mode is it using?  How many operands does the <literal>incl</literal> instructions have in this case?  Which parts are being handled by the assembler and which parts are being handled when the program is run?</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Use the Concepts</title>
+
+<itemizedlist>
+<listitem><para>Add another data member to the person structure defined in this chapter, and rewrite the reading and writing functions and programs to take them into account.  Remember to reassemble and relink your files before running your programs.</para></listitem>
+<listitem><para>Create a program that uses a loop to write 30 identical records to a file.</para></listitem>
+<listitem><para>Create a program to find the largest age in the file and return that age as the status code of the program.</para></listitem>
+<listitem><para>Create a program to find the smallest age in the file and return that age as the status code of the program.</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Going Further</title>
+
+<itemizedlist>
+<listitem><para>Rewrite the programs in this chapter to use command-line arguments to specify the filesnames.</para></listitem>
+<listitem><para>Research the <literal>lseek</literal> system call.  Rewrite the <literal>add-year</literal> program to open the source file for both reading and writing (use $2 for the read/write mode), and write the modified records back to the same file they were read from.</para></listitem>
+<listitem><para>Research the various error codes that can be returned by the system calls made in these programs.  Pick one to rewrite, and add code that checks &eax-indexed; for error conditions, and, if one is found, writes a message about it to <literal>STDERR</literal> and exit.</para></listitem>
+<listitem><para>Write a program that will add a single record to the file by reading the data from the keyboard.  Remember, you will have to make sure that the data has at least one null character at the end, and you need to have a way for the user to indicate they are done typing.  Because we have not gotten into characters to numbers conversion, you will not be able to read the age in from the keyboard, so you'll have to have a default age.</para></listitem>
+<listitem><para>Write a function called <literal>compare-strings</literal> that will compare two strings up to 5 characters.  Then write a program that allows the user to enter 5 characters, and have the program return all records whose first name starts with those 5 characters.</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+</sect1>
+
+</chapter>

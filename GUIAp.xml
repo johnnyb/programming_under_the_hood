@@ -1,0 +1,302 @@
+<appendix>
+<title>GUI Programming</title>
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+<simplesect>
+<title>Introduction to GUI Programming</title>
+
+<para>
+The purpose of this appendix is not to teach you how to
+do Graphical User Interfaces.  It is simply meant to show
+how writing graphical applications is the same as writing
+other applications, just using an additional library to
+handle the graphical parts.  As a programmer you need
+to get used to learning new libraries.  Most of your time
+will be spent passing data from one library to another.
+</para>
+
+</simplesect>
+
+<simplesect>
+<title>The GNOME Libraries</title>
+
+<para>
+The GNOME<indexterm><primary>GNOME</primary></indexterm> projects is one of several projects to provide
+a complete desktop to Linux users.  The GNOME project includes
+a panel to hold application launchers and mini-applications
+called applets, several standard applications to do things
+such as file management, session management, and configuration,
+and an API for creating applications which fit in with the
+way the rest of the system works.
+</para>
+
+<para>
+One thing to notice about the GNOME libraries is that they
+constantly create and give you pointers to large data 
+structures, but you never need to know how they are laid
+out in memory.  All manipulation of the GUI data structures
+are done entirely through function calls.  This is a 
+characteristic of good library design.  Libraries change
+from version to version, and so does the data that each
+data structure holds.  If you had to access and manipulate
+that data yourself, then when the library is updated you
+would have to modify your programs to work with the new library,
+or at least recompile them.  When you access the data through
+functions, the functions take care of knowing where in the
+structure each piece of data is.  The pointers you receive
+from the library are <emphasis>opaque</emphasis> - you don't
+need to know specifically what the structure they are pointing
+to looks like, you only need to know the functions that will
+properly manipulate it.  When designing libraries, even for
+use within only one program, this is a good practice to keep
+in mind.
+</para>
+
+<para>
+This chapter will not go into details about how GNOME works.
+If you would like to know more, visit the GNOME developer web
+site at http://developer.gnome.org/.
+This site contains tutorials, mailing lists, API documentation,
+and everything else you need to start programming in the GNOME
+environment.  
+</para>
+
+</simplesect>
+
+<simplesect>
+<title>A Simple GNOME Program in Several Languages</title>
+
+<para>
+This program will simply show a Window that has a button to
+quit the application.  When that button is clicked it will
+ask you if you are sure, and if you click yes it will close
+the application.  To run this program, type in the following
+as <filename>gnome-example.s</filename>:
+
+<programlisting>
+&gnome-example-s;
+</programlisting>
+
+To build this application, execute the following commands:
+
+<programlisting>
+as gnome-example.s -o gnome-example.o
+gcc gnome-example.o `gnome-config --libs gnomeui` \
+    -o gnome-example
+</programlisting>
+
+Then type in <literal>./gnome-example</literal> to run it.
+</para>
+
+<para>
+This program, like most GUI<indexterm><primary>GUI</primary></indexterm> programs, makes heavy use of 
+passing pointers to functions as parameters.  In this program
+you create widgets with the GNOME functions and then you
+set up functions to be called when certain events happen.
+These functions are called <emphasis>callback</emphasis>
+functions.  All of the event processing is handled by 
+the function <literal>gtk_main</literal>, so you don't
+have to worry about how the events are being processed.
+All you have to do is have callbacks set up to wait for
+them.
+</para>
+
+<para>
+Here is a short description of all of the GNOME functions
+that were used in this program:
+
+<variablelist>
+
+<varlistentry>
+<term>gnome_init</term>
+<listitem><para>
+Takes the command-line arguments, argument count, application
+id, and application version and initializes the GNOME 
+libraries.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gnome_app_new</term>
+<listitem><para>
+Creates a new application window, and returns a pointer to it.
+Takes the application id and the window title as arguments.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_button_new_with_label</term>
+<listitem><para>
+Creates a new button and returns a pointer to it.
+Takes one argument - the text that is in the button.            
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gnome_app_set_contents</term>
+<listitem><para>
+This takes a pointer to the gnome application window
+and whatever widget you want (a button in this case) and 
+makes the widget be the contents of the application window
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_widget_show</term>
+<listitem><para>
+This must be called on every widget created (application 
+window, buttons, text entry boxes, etc) in order
+for them to be visible.  However, in order for a given 
+widget to be visible, all of its parents must be visible 
+as well.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_signal_connect</term>
+<listitem><para>
+This is the function that connects widgets and their
+signal handling callback functions.  This function takes
+the widget pointer, the name of the signal, the callback
+function, and an extra data pointer.  After this function
+is called, any time the given event is triggered, the 
+callback will be called with the widget that produced
+the signal and the extra data pointer.  In this application,
+we don't use the extra data pointer, so we just set it to
+NULL, which is 0.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_main</term>
+<listitem><para>
+This function causes GNOME to enter into its main loop.
+To make application programming easier, GNOME handles the
+main loop of the program for us.  GNOME will check for
+events and call the appropriate callback functions when
+they occur.  This function will continue to process events
+until <literal>gtk_main_quit</literal> is called by a signal
+handler.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_main_quit</term>
+<listitem><para>
+This function causes GNOME to exit its main loop at the
+earliest opportunity.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gnome_message_box_new</term>
+<listitem><para>
+This function creates a dialog window containing a question
+and response buttons.  It takes as parameters the message
+to display, the type of message it is (warning, question, etc),
+and a list of buttons to display.  The final parameter should
+be NULL to indicate that there are no more buttons to display.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gtk_window_set_modal</term>
+<listitem><para>
+This function makes the given window a modal window.  In
+GUI programming, a modal window is one that prevents event
+processing in other windows until that window is closed.
+This is often used with Dialog windows.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>gnome_dialog_run_and_close</term>
+<listitem><para>
+This function takes a dialog pointer (the pointer returned
+by <literal>gnome_message_box_new</literal> can be used
+here) and will set up all of the appropriate signal handlers
+so that it will run until a button is pressed.  At that
+time it will close the dialog and return to you which button
+was pressed.  The button number refers to the order in which
+the buttons were set up in <literal>gnome_message_box_new</literal>.
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</para>
+
+<para>
+The following is the same program written in the C language.
+Type it in as <filename>gnome-example-c.c</filename>:
+
+<programlisting>
+&gnome-example-c-c;
+</programlisting>
+
+To compile it, type
+
+<programlisting>
+gcc gnome-example-c.c `gnome-config --cflags \
+    --libs gnomeui` -o gnome-example-c
+</programlisting>
+
+Run it by typing <literal>./gnome-example-c</literal>.
+</para>
+
+<para>
+Finally, we have a version in Python.  Type it in as gnome-example.py:
+
+<programlisting>
+&gnome-example-py;
+</programlisting>
+
+To run it type <literal>python gnome-example.py</literal>.
+</para>
+
+</simplesect>
+
+<simplesect>
+<title>GUI Builders</title>
+
+<para>
+In the previous example, you have created the user-interface
+for the application by calling the create functions for each
+widget and placing it where you wanted it.  However, this can
+be quite burdensome for more complex applications.  Many 
+programming environments, including GNOME, have programs
+called GUI builders that can be used to automatically create
+your GUI for you.  You just have to write the code for the
+signal handlers and for initializing your program.  The
+main GUI builder<indexterm><primary>GUI builder</primary></indexterm> for GNOME applications is called GLADE.
+GLADE ships with most Linux distributions.
+</para>
+
+<para>
+There are GUI builders for most programming environments.
+Borland has a range of tools that will build GUIs quickly 
+and easily on Linux and Win32<indexterm><primary>Win32</primary></indexterm> systems.  The KDE environment 
+has a tool called QT Designer<indexterm><primary>QT Designer</primary></indexterm> which helps you automatically 
+develop the GUI for their system.  
+</para>
+
+<para>
+There is a broad range
+of choices for developing graphical applications, but 
+hopefully this appendix gave  you a taste of what GUI programming
+is like.
+</para>
+
+</simplesect>
+
+</appendix>

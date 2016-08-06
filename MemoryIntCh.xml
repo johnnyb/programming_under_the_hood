@@ -1,0 +1,1199 @@
+<chapter id="memoryintermediate">
+<title>Intermediate Memory Topics</title>
+
+<sect1>
+<title>How a Computer Views Memory</title>
+
+<para>
+Let's review how memory within a computer works.  You may also want to
+re-read <xref linkend="computerarchitecture" />.
+</para>
+
+<para>
+A computer looks at memory as a long sequence of numbered storage
+locations.  A sequence of <emphasis>millions</emphasis> of numbered
+storage locations.  Everything is stored in these locations.  Your
+programs are stored there, your data is stored there, everything.  
+Each storage location looks like every other one.  The locations 
+holding your program are just like the ones holding your data.  In
+fact, the computer has no idea which are which, except that the
+executable file tells it where to start executing.
+</para>
+
+<para>
+These storage locations are called bytes.  The computer can combine
+up to four of them together into a single word.  Normally numeric
+data is operated on a word at a time.  As we mentioned, instructions
+are also stored in this same memory.  Each instruction is a different
+length.  Most instructions take up one or two storage locations for
+the instruction itself, and then storage locations for the instruction's
+arguments.  For example, the instruction
+
+<programlisting>
+	movl data_items(,%edi,4), %ebx
+</programlisting>
+
+takes up 7 storage locations.  The first two hold the instruction,
+the third one tells which registers to use, and the next four hold
+the storage location of <literal>data_items</literal>.  In memory,
+instructions look just like all the other numbers, and the instructions themselves
+can be moved into and out of registers just like numbers, because that's
+what they are.
+</para>
+
+<para>
+This chapter is focused on the details of computer memory.  To get started
+let's review some basic terms that we will be using in this chapter:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term>Byte</term>
+<listitem><para>
+This is the size of a storage location.  On x86 processors, a byte
+can hold numbers between 0 and 255.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Word</term>
+<listitem><para>
+This is the size of a normal register.  On x86 processors, a word
+is four bytes long.  Most computer operations handle a word at a time.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Address</term>
+<listitem>
+<para>
+An address is a number that refers to a byte in memory.  For example, the first
+byte on a computer has an address of 0, the second has
+an address of 1, and so on.<footnote><para>You actually never use
+addresses this low, but it works for discussion.</para></footnote>
+Every piece of data on the computer not in a register has an address.
+The address of data which spans several bytes is the same as the address
+of its first byte.
+</para>
+<para>
+Normally, we don't ever type the numeric address of anything, but we let the
+assembler do it for us.  When we use labels in code, the
+symbol used in the label will be equivalent to the address it is labelling.  The assembler
+will then replace that symbol with its address wherever you use it in 
+your program.  For example, say you have the following code:
+</para>
+<programlisting>
+	.section .data
+my_data:
+	.long 2, 3, 4
+</programlisting>
+<para>
+Now, any time in the program that <literal>my_data</literal> is used, 
+it will be replaced by the address of the first value of the <literal>.long</literal>
+directive.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Pointer</term>
+<listitem><para>
+A pointer is a register or memory word whose value is an 
+address.  In our programs we use <literal>%ebp</literal> as a pointer
+to the current stack frame.  All base pointer addressing involves pointers.
+Programming uses a lot of pointers, so
+it's an important concept to grasp.  
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect1>
+
+
+<!-- SECTION REMOVED - DON'T KNOW WHY IT WAS HERE 
+<sect1>
+<title>The Instruction Pointer</title>
+
+<para>
+Previously we have concentrated on general registers and how they work.
+The only special register we've dealt with is the status register, and
+we really didn't say much about it.  The next special register we will
+deal with is the instruction pointer, or <literal>%eip</literal>.
+We mentioned earlier that the computer sees every byte on the computer
+in the same way.  If we have a number that is an entire word, the computer
+doesn't know what address that word starts or ends at.  The computer doesn't know
+the difference between instructions and data, either.  Any value in memory could be 
+instructions, data, or the middle of an instruction or piece of data.  So how does the computer
+know what to execute?  The answer is the instruction pointer.  The
+instruction pointer always has the value of the next instruction.  When
+the computer is ready to execute an instruction, it looks at the
+instruction pointer to see where to go next.  It then increments the
+instruction pointer to point to the next instruction.  After it finishes
+executing the current instruction, it looks at the instruction pointer
+again.  That's all well and good, but what about jumps (the 
+<literal>jmp</literal> family of instructions)?  At the end of those
+instructions, the computer does _not_ look at the next instruction,
+it goes to an instruction in a totally different place.  How does this
+work?  Because 
+
+<programlisting>
+	jmp somewhere
+</programlisting>
+
+is exactly the same as
+
+<programlisting>
+	movl $somewhere, %eip
+</programlisting>
+
+Where <literal>somewhere</literal> is a symbol referring to a program
+section.  Now, you can't actually do this, because you are not
+allowed to refer directly to <literal>%eip</literal>, but if you
+could this would be how.  Also note that we put a dollar sign
+in front of <literal>somewhere</literal>.  How do we know when to
+put a dollar sign and when not to?  The dollar sign says to 
+use immediate mode addressing, which means to treat
+<literal>somewhere</literal> as a value.  If the dollar sign weren't
+there, it would switch to direct addressing mode, moving the value in 
+the <literal>somewhere</literal>'s
+address into <literal>%eip</literal>, which is not what we want.
+In our previous programs, we often will load registers like this:
+
+<programlisting>
+	movl  $0, %ebx
+</programlisting>
+
+The dollar sign in front of the zero indicates that this is an immediate-mode
+instruction, meaning that we load the value zero itself.  If we 
+accidentally left out the dollar sign, instead of putting the
+number zero in <literal>%ebx</literal>, we would be using direct addressing
+mode, putting whatever
+was at address zero on our computer into <literal>%ebx</literal>.  To refresh
+your memory of addressing modes, see <xref linkend="dataaccessingmethods" />.
+</para>
+
+</sect1>
+
+END REMOVED SECTION -->
+
+<sect1>
+<title>The Memory Layout of a Linux Program</title>
+
+<para>
+When you program is loaded into memory, each <literal>.section<indexterm><primary>.section</primary></indexterm></literal>
+is loaded into its own region of memory.  All of the code and data declared
+in each section is brought together, even if they were separated in your
+source code.
+</para>
+
+<para>
+The actual instructions (the <literal>.text<indexterm><primary>.text</primary></indexterm></literal> section) are loaded at the 
+address 0x08048000 (numbers starting with <literal>0x</literal> are in hexadecimal, which
+will be discussed in <xref linkend="countingchapter" />).<footnote><para>Addresses mentioned in this chapter are not set in stone and may vary based on kernel 
+version.</para></footnote>  The <literal>.data<indexterm><primary>.data</primary></indexterm></literal>
+section is loaded immediately after that, followed by the 
+<literal>.bss<indexterm><primary>.bss</primary></indexterm></literal>
+section.
+</para>
+
+<para>
+The last byte that can be addressed on Linux is location
+0xbfffffff.  Linux starts the stack here and grows
+it downward toward the other sections.  Between them is a huge 
+gap.  The initial layout of the stack is as follows:
+At the bottom of the stack (the bottom of the stack is the
+top address of memory - see <xref linkend="functionschapter" />),
+there is a word of memory that is
+zero.  After that comes the null-terminated 
+name of the program using ASCII characters.
+After the program name comes the program's environment variables (these
+are not important to us in this book).  Then come the program's command-line arguments.
+These are the values that the user typed in on the command line
+to run this program.  When we run <literal>as</literal>,
+for example, we give it several arguments - <literal>as</literal>,
+<literal>sourcefile.s</literal>, <literal>-o</literal>, and 
+<literal>objectfile.o</literal>.  After these, we have the 
+number of arguments that were used.  When the program begins,
+this is where the stack pointer, &esp-indexed;, is pointing.  
+Further pushes on the stack move &esp; down in memory.  For example,
+the instruction
+
+<programlisting>
+	pushl %eax
+</programlisting>
+
+is equivalent to
+
+<programlisting>
+	movl %eax, (%esp)
+	subl $4, %esp
+</programlisting>
+
+Likewise, the instruction
+
+<programlisting>
+	popl %eax
+</programlisting>
+
+is the same as
+
+<programlisting>
+	movl (%esp), %eax
+	addl $4, %esp
+</programlisting>
+</para>
+
+<para>
+Your program's data region starts at the bottom of memory and goes up.
+The stack starts at the top of memory, and moves downward with each push.
+This middle part between the stack and your program's data sections is 
+inaccessible memory - you are not allowed to 
+access it until you tell the kernel that you need it.<footnote><para>The
+stack can access it as it grows downward, and you can access the stack
+regions through &esp-indexed;.  However, your program's data section
+doesn't grow that way.  The way to grow that will be explained shortly.</para></footnote>
+If you try, you
+will get an error (the error message is usually "segmentation fault").  
+The same will happen if you try to
+access data before the beginning of your program, 0x08048000.  
+The last accessible memory address to your program is called the 
+<emphasis>system break<indexterm><primary>system break</primary></indexterm></emphasis>
+(also called the <emphasis>current break<indexterm><primary>current break</primary></indexterm></emphasis> or just the <emphasis>break</emphasis>).
+</para>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="memorylayout.png" format="PNG" />
+</imageobject>
+<caption><para><emphasis>Memory Layout of a Linux Program at Startup</emphasis></para></caption>
+</mediaobject>
+
+</sect1>
+
+<sect1>
+<title>Every Memory Address is a Lie</title>
+<para>
+So, why does the computer not allow you to access memory in the 
+break area?  To answer this question, we will have to delve into
+the depths of how your computer really handles memory.  
+</para>
+
+<para>
+You may have wondered, since every program gets loaded into the same
+place in memory, don't they step on each other, or overwrite each other?
+It would seem so.  However, as a program writer, you only access
+<emphasis>virtual memory<indexterm><primary>virtual memory</primary></indexterm></emphasis>.  
+</para>
+
+<para>
+<emphasis>Physical memory<indexterm><primary>physical memory</primary></indexterm></emphasis>
+refers to the actual RAM chips inside your computer and what they contain.   It's usually
+between 16 and 512 Megabytes on modern computers.  If we talk about a <emphasis>physical
+memory address</emphasis>, we are talking about where exactly on these
+chips a piece of memory is located.  Virtual
+memory is the way <emphasis>your program</emphasis> thinks about memory.  Before loading
+your program, Linux finds an empty physical memory space large enough to
+fit your program, and then tells
+the processor to pretend that this memory is actually at the address
+0x0804800 to load your program into.  Confused yet?  Let me explain further.
+</para>
+
+<para>
+Each program gets its own sandbox to play in.  Every program running
+on your computer thinks that it was loaded at memory address 0x0804800,
+and that its stack starts at 0xbffffff.  When Linux loads a program,
+it finds a section of unused memory, and then tells the processor to use
+that section of memory as the address 0x0804800 for this program.  The
+address that a program believes it uses is called the 
+virtual address<indexterm><primary>virtual address</primary></indexterm>,
+while the actual address on the chips that it refers to is called
+the physical address<indexterm><primary>physical address</primary></indexterm>.  
+The process of assigning virtual addresses to
+physical addresses is called 
+<emphasis>mapping<indexterm><primary>mapping</primary></indexterm></emphasis>.  
+</para>
+
+<para>
+Earlier we 
+talked about the inaccessible memory between the <literal>.bss</literal> and the 
+stack, but we didn't talk about why it was there.  The reason is that this
+region of virtual memory addresses hasn't been mapped onto 
+physical memory addresses.  The mapping process takes up considerable
+time and space, so if every possible virtual address of every possible
+program were mapped, you would not have enough physical memory to even run one program.  So,
+the break is the beginning of the area that contains unmapped memory.  With the
+stack, however, Linux will automatically map in memory that is accessed from
+stack pushes.
+</para>
+
+<para>
+Of course, this is a very simplified view of virtual memory.  The full 
+concept is much more advanced.  For example, 
+Virtual memory can be mapped to more than just physical memory; it
+can be mapped to disk as well.  Swap partitions on Linux allow
+Linux's virtual memory system to map memory not only to physical RAM,
+but also to disk blocks as well.  For example, let's
+say you only have 16 Megabytes of physical memory.  Let's also say that
+8 Megabytes are being used by Linux and some basic applications, and you
+want to run a program that requires 20 Megabytes of memory.  Can you?  The
+answer is yes, but only if you have set up a swap partition.  What
+happens is that after all of your remaining 8 Megabytes of physical memory
+have been mapped into virtual memory, Linux starts mapping parts of your application's
+virtual memory to disk blocks.  So, if you access a "memory" location in your
+program, that location may not actually be in memory at all, but on
+disk.  As the programmer you won't know the difference, though, because 
+it is all handled behind the scenes by Linux.
+</para>
+
+<para>
+Now, x86 processors cannot run instructions directly from disk, nor can
+they access data directly from disk.  This requires the help of the operating
+system.  When you try to access memory that is mapped to disk, the processor
+notices that it can't service your memory request directly.  It then asks
+Linux to step in.  Linux notices that the memory
+is actually on disk.  Therefore, it moves some data that is currently in 
+memory onto disk to make room, and then moves the memory being accessed
+from the disk back into physical memory.  It then adjusts the processor's
+virtual-to-physical memory lookup tables so that it can find the memory in
+the new location.  Finally, Linux returns control to the program and restarts
+it at the instruction which was trying to access the data in the first place.  
+This instruction can now be completed successfully, 
+because the memory is now in physical RAM.<footnote><para>Note that not only 
+can Linux have a virtual address map to a different
+physical address, it can also move those mappings around as needed.
+</para></footnote>
+</para>
+
+<para>
+Here is an overview of the way memory accesses are handled under Linux:
+</para>
+
+<itemizedlist>
+<listitem><para>The program tries to load memory from a virtual address.</para></listitem>
+<listitem><para>The processor, using tables supplied by Linux, transforms the virtual memory address into a physical memory address on the fly.</para></listitem>
+<listitem><para>If the processor does not have a physical address listed for the memory address, it sends a request to Linux to load it.</para></listitem>
+<listitem><para>Linux looks at the address.  If it is mapped to a disk location, it continues on to the next step.  Otherwise, it terminates the program with a segmentation fault error.</para></listitem>
+<listitem><para>If there is not enough room to load the memory from disk, Linux will move another part of the program or another program onto disk to make room.</para></listitem>
+<listitem><para>Linux then moves the data into a free physical memory address.</para></listitem>
+<listitem><para>Linux updates the processor's virtual-to-physical memory mapping tables to reflect the changes. </para></listitem>
+<listitem><para>Linux restores control to the program, causing it to re-issue the instruction which caused this process to happen.</para></listitem>
+<listitem><para>The processor can now handle the instruction using the newly-loaded memory and translation tables.</para></listitem>
+</itemizedlist>
+
+<para>
+It's a lot of work for the operating system, but it gives the user and the programmer great
+flexibility when it comes to memory management.
+</para>
+
+<para>
+Now, in order to make the process more efficient,
+memory is separated out into groups called <emphasis>pages<indexterm><primary>pages</primary></indexterm></emphasis>.  When
+running Linux on x86 processors, a page is 4096 bytes of memory.
+All of the memory mappings are done a page at a time.  Physical memory assignment,
+swapping<indexterm><primary>swapping</primary></indexterm>, mapping, etc. are all done to memory pages<indexterm><primary>memory pages</primary></indexterm> instead of individual memory
+addresses.  What this means to you as a programmer
+is that whenever you are programming, you should try to keep most memory accesses within
+the same basic range of memory, so you will only need a page or two of memory at
+a time.  Otherwise, Linux may have to keep moving pages on and off of disk to 
+satisfy your memory needs. Disk access is slow, so this can really slow down your program. 
+</para>
+
+<para>
+Sometimes so many programs can be loaded that there is hardly enough physical
+memory for them.  They wind up spending more time just swapping memory on and off of disk
+than they do actually processing it.  This leads to a condition called 
+<emphasis>swap death<indexterm><primary>swap death</primary></indexterm></emphasis>
+which leads to your system being unresponsive and unproductive.  It's usually
+usually recoverable if you start terminating your memory-hungry programs, but it's a pain.
+</para>
+
+<note>
+<title>Resident Set Size</title>
+<para>
+The amount of memory that your program currently has in physical memory is called its
+resident set size<indexterm><primary>resident set size</primary></indexterm>, and
+can be viewed by using the program <literal>top</literal>.  The resident set size
+is listed under the column labelled "RSS".
+</para>
+</note>
+
+</sect1>
+
+<sect1 id="dynamicmemory">
+<title>Getting More Memory</title>
+
+<para>
+We now know that Linux maps all of our virtual memory into physical memory or
+swap.  If you try to access a piece of virtual memory<indexterm><primary>virtual memory</primary></indexterm> 
+that hasn't been mapped yet,
+it triggers an error known as a segmentation fault, which will terminate your 
+program.  The program break point, if you remember, is the last valid address you
+can use.  Now, this is all great if you know beforehand how much storage you will
+need.  You can just add all the memory you need to your <literal>.data</literal>
+or <literal>.bss</literal> sections, and it will
+all be there.  However, let's say you don't know how much memory you will need.  For example,
+with a text editor, you don't know how long the person's file will be.  You could try
+to find a maximum file size, and just tell the user that they can't go beyond that, but
+that's a waste if the file is small.  Therefore Linux has a facility to move the break point
+to accomodate an application's memory needs.
+</para>
+
+<para>
+If you need more memory, you can just tell Linux where you want the new break point
+to be, and Linux will map all the memory you need between the current and new break
+point, and then move the break point to the spot you specify.  That memory is now
+available for your program to use.  The
+way we tell Linux to move the break point is through the 
+<literal>brk<indexterm><primary>brk</primary></indexterm></literal> 
+system call.  The <literal>brk</literal> system call is call number
+45 (which will be in &eax;).  &ebx; should be loaded with the requested breakpoint.  
+Then you call <literal>int $0x80</literal> to signal Linux to do its work.  
+After mapping in your memory, Linux will return the new break point in &eax;.
+The new break point might actually be larger
+than what you asked for, because Linux rounds up to the nearest page.  If there is
+not enough physical memory or swap to fulfill your request, Linux will return a zero
+in &eax;.  Also, if you call <literal>brk</literal> with a zero in &ebx;, it will
+simply return the last usable memory address.
+</para> 
+
+<para>
+The problem with this method is keeping track of the memory we request.  Let's say I need to
+move the break to have room to load a file, and then need to move a break again to
+load another file.  Let's say I then get rid of the first file.  You now have
+a giant gap in memory that's mapped, but that you aren't using.  If you continue to 
+move the break in this way for each file you load, you can easily run out of memory.  
+So, what is needed is a <emphasis>memory manager<indexterm><primary>memory manager</primary></indexterm></emphasis>.  
+</para>
+
+<para>
+A memory manager is a set of routines that takes care of the dirty work of getting
+your program memory for you.  Most memory managers have two basic functions - 
+<literal>allocate</literal> and <literal>deallocate</literal>.<footnote><para>The function 
+names usually aren't <literal>allocate</literal> and <literal>deallocate</literal>, but
+the functionality will be the same.  In the C programming language, for example, they
+are named <literal>malloc</literal> and <literal>free</literal>.</para></footnote>
+Whenever you need a certain amount of memory, you can simply tell <literal>allocate</literal>
+how much you need, and it will give you back an address to the memory.  
+When you're done with it, you tell <literal>deallocate</literal>
+that you are through with it.  <literal>allocate</literal> will then be able to reuse the
+memory.  This pattern of memory management is called <emphasis>dynamic memory allocation<indexterm><primary>dynamic memory allocation</primary></indexterm></emphasis>.  
+This minimizes the number of "holes" in your memory, making sure that you
+are making the best use of it you can.
+The pool of memory used by memory managers
+is commonly referred to as 
+<emphasis>the heap<indexterm><primary>heap</primary></indexterm></emphasis>.
+</para>
+
+<para>
+The way memory managers work is that they keep track of where the system break is, and
+where the memory that you have allocated is.  
+They mark each block of memory in the heap as
+being used or unused.  When you request memory, the memory manager checks to see if there
+are any unused blocks of the appropriate size.  If not, it calls the <literal>brk</literal>
+system call to request more memory.  When you free memory it marks the block as unused
+so that future requests can retrieve it.  In the next section we will look at building
+our own memory manager.
+</para>
+
+</sect1>
+
+<sect1>
+<title>A Simple Memory Manager</title>
+
+<para>
+Here I will show you a simple memory manager.  It is very primitive but it shows the 
+principles quite well.
+As usual, I will give you the program first for you to look through.  Afterwards will follow
+an in-depth explanation.  It looks long, but it is mostly comments.
+</para>
+
+<programlisting>
+&alloc-s;
+</programlisting>
+
+<para>
+The first thing to notice is that there is no <literal>_start</literal> symbol.  The reason
+is that this is just a set of functions.  A memory manager by itself is not a full 
+program - it doesn't do anything.  It is simply a utility to be used by other programs.
+</para>
+
+<para>
+To assemble the program, do the following:
+</para>
+
+<programlisting>
+as alloc.s -o alloc.o
+</programlisting>
+
+<para>
+Okay, now let's look at the code.
+</para>
+
+<sect2>
+<title>Variables and Constants</title>
+
+<para>
+At the beginning of the program, we have two locations set up:
+</para>
+
+<programlisting>
+heap_begin:
+	.long 0
+
+current_break:
+	.long 0
+</programlisting>
+
+<para>
+Remember, the section of memory being managed is commonly referred to as
+the <emphasis>heap<indexterm><primary>heap</primary></indexterm></emphasis>. 
+When we assemble the program, we have no idea where the beginning of the heap is, nor 
+where the current break<indexterm><primary>current break</primary></indexterm> 
+is.  Therefore, we reserve space for their addresses, but just fill them with a 0 for the
+time being.  
+</para>
+
+<para>
+Next we have a set of constants to define the structure of the heap.  The way this
+memory manager works is that before each region of memory allocated, we will have a 
+short record describing the memory.
+This record has a word reserved for the available flag and a word for the region's size.
+The actual memory allocated immediately follows this record.  The available flag is used
+to mark whether this region is available for allocations, or if it is currently in
+use.  The size field lets us know both whether or not this region is big enough for
+an allocation request, as well as the location of the next memory region.
+The following constants describe this record:
+</para>
+
+<programlisting>
+	.equ HEADER_SIZE, 8
+	.equ HDR_AVAIL_OFFSET, 0
+	.equ HDR_SIZE_OFFSET, 4
+</programlisting>
+
+<para>
+This says that the header is 8 bytes total, the available flag is offset 0 bytes from the 
+beginning, and the size field is offset 4 bytes from the 
+beginning.  If we are careful to always use these constants,
+then we protect ourselves from having to do too much work if we later decide to add more
+information to the header.
+</para>
+
+<para>
+The values that we will use for our <literal>available</literal> field are either 0 for
+unavailable, or 1 for available.  To make this easier to read, we have the following definitions:
+</para>
+
+<programlisting>
+	.equ UNAVAILABLE, 0
+	.equ AVAILABLE, 1
+</programlisting>
+
+<para>
+Finally, we have our Linux system call definitions:
+</para>
+
+<programlisting>
+	.equ BRK, 45
+	.equ LINUX_SYSCALL, 0x80
+</programlisting>
+
+</sect2>
+
+<sect2>
+<title>The <literal>allocate_init</literal> function</title>
+
+<para>
+Okay, this is a simple function.  All it does is set up the <literal>heap_begin</literal> and
+<literal>current_break</literal> variables we discussed earlier.  So, if you remember the
+discussion earlier, the current break can be found using the 
+<literal>brk<indexterm><primary>brk</primary></indexterm></literal> system call.  
+So, the function starts like this:
+</para>
+
+<programlisting>
+	pushl %ebp
+	movl  %esp, %ebp
+
+	movl  $SYS_BRK, %eax
+	movl  $0,  %ebx
+	int   $LINUX_SYSCALL
+</programlisting>
+
+<para>
+Anyway, after <literal>int $LINUX_SYSCALL</literal>, 
+<literal>%eax</literal> holds the last valid address.  
+We actually want the first invalid address instead of the last valid address, so we just increment <literal>%eax</literal>.  Then
+we move that value to the <literal>heap_begin</literal> and <literal>current_break</literal>
+locations.  
+Then we leave the function.  The code looks like this:
+</para>
+
+<programlisting>
+	incl  %eax
+	movl  %eax, current_break
+	movl  %eax, heap_begin
+	movl  %ebp, %esp
+	popl  %ebp
+	ret
+</programlisting>
+
+<para>
+The heap consists of the memory between <literal>heap_begin</literal> and
+<literal>current_break</literal>, so this says that we start off with a heap of zero bytes.
+Our <literal>allocate</literal> function will then extend the heap as much as it needs to
+when it is called.
+</para>
+
+</sect2>
+
+<sect2>
+<title>The <literal>allocate</literal> function</title>
+
+<para>
+This is the doozy function.  Let's start by looking at an outline of the function:
+</para>
+
+<orderedlist>
+
+<listitem><para>
+Start at the beginning of the heap.
+</para></listitem>
+
+<listitem><para>
+Check to see if we're at the end of the heap.
+</para></listitem>
+
+<listitem><para>
+If we are at the end of the heap, grab the memory we need from Linux, mark it
+as "unavailable" and return it.  If Linux won't give us any more, return a 0.
+</para></listitem>
+
+<listitem><para>
+If the current memory region is marked "unavailable", go to the next one, and go
+back to step 2.
+</para></listitem>
+
+<listitem><para>
+If the current memory region is too small to hold the requested amount of space,
+go back to step 2.
+</para></listitem>
+
+<listitem><para>
+If the memory region is available and large enough, mark it as "unavailable" and
+return it.
+</para></listitem>
+
+</orderedlist>
+
+<para>
+Now, look back through the code with this in mind.  Be sure to read the comments so you'll know 
+which register holds which value.  
+</para>
+
+<para>
+Now that you've looked back through the code, let's examine it one line at a time.  We start
+off like this:
+</para>
+
+<programlisting>
+	pushl %ebp
+	movl  %esp, %ebp
+	movl  ST_MEM_SIZE(%ebp), %ecx
+	movl  heap_begin, %eax
+	movl  current_break, %ebx
+</programlisting>
+
+<para>
+This part initializes all of our registers.  The first two lines are standard function
+stuff.  The next move pulls the size of the memory to allocate off of the stack.  This is
+our only function parameter.   After that, it moves the beginning heap address and the 
+end of the heap into registers.  I am now ready to do processing.
+</para>
+
+<para>
+The next section is marked <literal>alloc_loop_begin</literal>.  In this loop
+we are going to examine memory regions until we either find an open memory region or 
+determine that we need more memory.  Our first instructions check to see if we need more memory:
+</para>
+
+<programlisting>
+	cmpl %ebx, %eax
+	je   move_break
+</programlisting>
+
+<para>
+&eax; holds the current memory region being examined and &ebx;
+holds the location past the end of the heap.  Therefore if the next region to be
+examined is past the end of the heap, it means we need more 
+memory to allocate a region of this size.  
+Let's skip down to <literal>move_break</literal> and
+see what happens there:
+</para>
+
+<programlisting>
+move_break:
+	addl  $HEADER_SIZE, %ebx
+	addl  %ecx, %ebx
+	pushl %eax
+	pushl %ecx
+	pushl %ebx
+	movl  $SYS_BRK, %eax
+	int   $LINUX_SYSCALL
+</programlisting>
+
+<para>
+When we reach this point in the code, &ebx; holds where we want the next
+region of memory to be.    
+So, we add our header size and region size to &ebx;, and that's where we want the system break 
+to be.  We then push all the registers we want to save on the stack, and call the 
+<literal>brk</literal> system call. After that we check for errors:
+</para>
+
+<programlisting>
+	cmpl  $0, %eax
+	je    error
+</programlisting>
+
+<para>
+If there were no errors we pop the registers back off the stack, mark the memory as 
+unavailable, record the size of the memory, and make sure &eax; points to the start of usable
+memory (which is <emphasis>after</emphasis> the header).
+</para>
+
+<programlisting>
+	popl  %ebx
+	popl  %ecx
+	popl  %eax
+	movl  $UNAVAILABLE, HDR_AVAIL_OFFSET(%eax)
+	movl  %ecx, HDR_SIZE_OFFSET(%eax)
+	addl  $HEADER_SIZE, %eax
+</programlisting>
+
+<para>
+Then we store the new program break and return the pointer to the allocated memory.
+</para>
+
+<programlisting>
+	movl  %ebx, current_break
+	movl  %ebp, %esp
+	popl  %ebp
+	ret
+</programlisting>
+
+<para>
+The <literal>error</literal> code just returns 0 in &eax;, so we won't 
+discuss it.
+</para>
+
+<para>
+Let's go back look at the rest of the loop.  What happens if the current memory being 
+looked at isn't past the end of the heap?  Well, let's look.
+</para>
+
+<programlisting>
+	movl HDR_SIZE_OFFSET(%eax), %edx
+	cmpl $UNAVAILABLE, HDR_AVAIL_OFFSET(%eax)
+	je   next_location
+</programlisting>
+
+<para>
+This first grabs the size of the memory region and puts it in &edx;.
+Then it looks at the available flag to see if it is set to <literal>UNAVAILABLE</literal>.
+If so, that means that memory region is in use, so we'll have to skip over it.  So, if
+the available flag is set to <literal>UNAVAILABLE</literal>, you go to the code
+labeled <literal>next_location</literal>.  If the available flag is set to
+<literal>AVAILABLE</literal>, then we keep on going.  
+</para>
+
+<para>
+Let's say that the space was available, and so we keep going.  Then we check to
+see if this space is big enough to hold the requested amount of memory.  The size of
+this region is being held in &edx;, so we do this:
+</para>
+
+<programlisting>
+	cmpl  %edx, %ecx
+	jle   allocate_here
+</programlisting>
+
+<para>
+If the requested size is less than or equal to the current region's size, we
+can use this block.  It doesn't matter if the current region is larger than requested,
+because the extra space will just be unused.  So, let's jump down to 
+<literal>allocate_here</literal> and see what happens:
+</para>
+
+<programlisting>
+	movl  $UNAVAILABLE, HDR_AVAIL_OFFSET(%eax)
+	addl  $HEADER_SIZE, %eax
+	movl  %ebp, %esp
+	popl  %ebp
+	ret
+</programlisting>
+
+<para>
+It marks the memory as being unavailable.  Then it moves the pointer &eax; past the header,
+and uses it as the return value for the function.  Remember, the person using this
+function doesn't need to even know about our memory header record.  They just need
+a pointer to usable memory. 
+</para>
+
+<para>
+Okay, so let's say the region wasn't big enough.  What then?  Well, we would then
+be at the code labeled <literal>next_location</literal>.  This section of code
+is used any time that we figure out that
+the current memory region won't work for allocating memory.  All it does is
+advance &eax; to the next possible memory region, and goes back
+to the beginning of the loop.   Remember that &edx; is holding
+the size of the current memory region, and <literal>HEADER_SIZE</literal> is the symbol
+for the size of the memory region's header.  So this code will move us to the next
+memory region:
+</para>
+
+<programlisting>
+	addl  $HEADER_SIZE, %eax
+	addl  %edx, %eax
+	jmp   alloc_loop_begin
+</programlisting>
+
+<para>
+And now the function runs another loop.
+</para>
+
+<para>
+Whenever you have a loop, you must make sure that it will <emphasis>always</emphasis> 
+end.  The best way to do that is to examine all of the possibilities, and make sure that
+all of them eventually lead to the loop ending.  In our case, we have the following 
+possibilities:
+</para>
+
+<itemizedlist>
+
+<listitem><para>We will reach the end of the heap</para></listitem>
+<listitem><para>We will find a memory region that's available and large enough</para></listitem>
+<listitem><para>We will go to the next location</para></listitem>
+
+</itemizedlist>
+
+<para>
+The first two items are conditions that will cause the loop to end.  The third one
+will keep it going.  However, even if we never find an open region, 
+we will eventually reach the end of the heap, because it is a finite size.  Therefore, we know
+that no matter which condition is true, the loop has to eventually hit a terminating condition.
+</para>
+
+</sect2>
+
+<sect2>
+<title>The <literal>deallocate</literal> function</title>
+
+<para>
+The <literal>deallocate</literal> function is much easier than the 
+<literal>allocate</literal> one.
+That's because it doesn't have to do any searching at all.  It can just mark
+the current memory region as <literal>AVAILABLE</literal>, and <literal>allocate</literal>
+will find it next time it is called.   So we have:
+</para>
+
+<programlisting>
+	movl  ST_MEMORY_SEG(%esp), %eax
+	subl  $HEADER_SIZE, %eax
+	movl  $AVAILABLE, HDR_AVAIL_OFFSET(%eax)
+	ret
+</programlisting>
+
+<para>
+In this function, we don't have to save &ebp-indexed; or &esp-indexed;
+since we're not changing them, nor do we have to restore them at the end.  All we're
+doing is reading the address of the memory region from the stack, backing up to the
+beginning of the header, and marking the region as available.  This function has no
+return value, so we don't care what we leave in &eax;.
+</para>
+
+</sect2>
+
+<sect2>
+<title>Performance Issues and Other Problems</title>
+
+<para>
+Our simplistic memory manager is not really useful for anything more than an academic exercise.
+This section looks at the problems with such a simplistic allocator.
+</para>
+
+<para>
+The biggest problem here is speed.  Now, if there are only a few allocations made,
+then speed won't be a big issue.  But think about what happens if you make a thousand
+allocations.  On allocation number 1000, you have to search through 999 memory regions
+to find that you have to request more memory.  As you can see, that's getting pretty
+slow.  In addition, remember that Linux can keep pages of memory on disk instead of in
+memory.  So, since you have to go through every piece of memory your program's memory, that means that Linux
+has to load every part of memory that's currently on disk to check to see if it is available.  
+You can see how this could get really, really slow.<footnote><para>This is why adding more
+memory to your computer makes it run faster.  The more memory your computer has, the
+less it puts on disk, so it doesn't have to always be interrupting your programs to
+retreive pages off the disk.</para></footnote>  This method is said to run in 
+<emphasis>linear</emphasis> time, which means that every element you have to
+manage makes your program take longer.   A program that runs in <emphasis>constant</emphasis>
+time takes the same amount of time no matter how many elements you are managing.
+Take the <literal>deallocate</literal> function, for instance.  It only runs 4 instructions,
+no matter how many elements we are managing, or where they are in memory.  In fact, although
+our <literal>allocate</literal> function is one of the slowest of all memory managers,
+the <literal>deallocate</literal> function is one of the fastest.  
+</para>
+
+<para>
+Another performance problem is the number of times we're calling the <literal>brk</literal>
+system call.
+System calls take a long time.  They aren't like functions, because the processor has
+to switch modes.  Your program isn't allowed to map itself memory, but the Linux kernel is.  
+So, the processor has to switch into <emphasis>kernel mode<indexterm><primary>kernel mode</primary></indexterm></emphasis>, then Linux maps the
+memory, and then switches back to <emphasis>user mode<indexterm><primary>user mode</primary></indexterm></emphasis> for your application to continue running.  
+This is also called
+a <emphasis>context switch<indexterm><primary>context switch</primary></indexterm></emphasis>.  
+Context switches are relatively slow on x86 processors.
+Generally, you should avoid calling the kernel unless you really need to.  
+</para>
+
+<para>
+Another problem that we have is that we aren't recording where Linux actually sets the break.  
+Previously we mentioned that Linux might actually set the break past where we requested
+it.  In this program, we don't even look at where Linux actually sets the break - we just
+assume it sets it where we requested.  That's not really a bug, but it will lead to 
+unnecessary <literal>brk</literal> system calls when we already have the memory mapped in.
+</para>
+
+<para>
+Another problem we have is that if we are looking for a 5-byte region of memory, and
+the first open one we come to is 1000 bytes, we will simply mark the whole thing
+as allocated and return it.  This leaves 995 bytes of unused, but allocated, memory.
+It would be nice in such situations to break it apart so the other 995 bytes can be
+used later.  It would also be nice to combine consecutive free spaces when looking
+for large allocations.
+</para>
+
+</sect2>
+
+</sect1>
+
+<sect1>
+<title>Using our Allocator</title>
+
+<para>
+The programs we do in this book aren't complicated enough to necessitate a memory
+manager.  Therefore, we will just use our memory manager to allocate a buffer
+for one of our file reading/writing programs instead of assigning it in the 
+<literal>.bss</literal>.
+</para>
+
+<para>
+The program we will demonstrate this on is <filename>read-records.s</filename> from
+<xref linkend="records" />.  This program uses a buffer named <literal>record_buffer</literal>
+to handle its input/output needs.  We will simply change this from being a buffer defined
+in <literal>.bss</literal> to being a pointer to a dynamically-allocated buffer using
+our memory manager.  You will need to have the code from that program handy as we will
+only be discussing the changes in this section.
+</para>
+
+<para>
+The first change we need to make is in the declaration.  Currently it looks like this:
+</para>
+
+<programlisting>
+	.section .bss
+	.lcomm, record_buffer, RECORD_SIZE
+</programlisting>
+
+<para>
+It would be a misnomer to keep the same name, since we are switching it from being an
+actual buffer to being a pointer to a buffer.  In addition, it now only needs to be
+one word big (enough to hold a pointer).  The new declaration will stay in the 
+<literal>.data</literal> section and look like this:
+</para>
+
+<programlisting>
+record_buffer_ptr:
+	.long 0
+</programlisting>
+
+<para>
+Our next change is we need to initialize our memory manager immediately after 
+we start our program.  Therefore, right after the stack is set up, the following
+call needs to be added:
+</para>
+
+<programlisting>
+	call allocate_init
+</programlisting>
+
+<para>
+After that, the memory manager is ready to start servicing memory allocation requests.
+We need to allocate enough memory to hold these records that we are reading.  Therefore,
+we will call <literal>allocate</literal> to allocate this memory, and then save the
+pointer it returns into <literal>record_buffer_ptr</literal>.  Like this:
+</para>
+
+<programlisting>
+	pushl $RECORD_SIZE
+	call  allocate
+	movl  %eax, record_buffer_ptr
+</programlisting>
+
+<para>
+Now, when we make the call to <literal>read_record</literal>, it is expecting a pointer.
+In the old code, the pointer was the immediate-mode reference to 
+<literal>record_buffer</literal>.  Now, <literal>record_buffer_ptr</literal> just holds
+the pointer rather than the buffer itself.  Therefore, we must do a direct mode load
+to get the value in <literal>record_buffer_ptr</literal>.  We need to remove this line:
+</para>
+
+<programlisting>
+pushl $record_buffer
+</programlisting>
+
+<para>
+And put this line in its place:
+</para>
+
+<programlisting>
+pushl record_buffer_ptr
+</programlisting>
+
+<para>
+The next change comes when we are trying to find the address of the 
+firstname field of our record.  In the old code, it was 
+<literal>$RECORD_FIRSTNAME + record_buffer</literal>.  However, that
+only works because it is a constant offset from a constant address.
+In the new code, it is the offset of an address stored in 
+<literal>record_buffer_ptr</literal>.  To get that value, we will need
+to move the pointer into a register, and then add <literal>$RECORD_FIRSTNAME</literal>
+to it to get the pointer.  So where we have the following code:
+</para>
+
+<programlisting>
+	pushl $RECORD_FIRSTNAME + record_buffer
+</programlisting>
+
+<para>
+We need to replace it with this:
+</para>
+
+<programlisting>
+	movl  record_buffer_ptr, %eax
+	addl  $RECORD_FIRSTNAME, %eax
+	pushl %eax
+</programlisting>
+
+<para>
+Similarly, we need to change the line that says
+</para>
+
+<programlisting>
+	movl  $RECORD_FIRSTNAME + record_buffer, %ecx
+</programlisting>
+
+<para>
+so that it reads like this:
+</para>
+
+<programlisting>
+	movl  record_buffer_ptr, %ecx
+	addl  $RECORD_FIRSTNAME, %ecx
+</programlisting>
+
+<para>
+Finally, one change that we need to make is to deallocate the memory once
+we are done with it (in this program it's not necessary, but it's a good 
+practice anyway).  To do that, we just send <literal>record_buffer_ptr</literal>
+to the <literal>deallocate</literal> function right before exitting:
+</para>
+
+<programlisting>
+	pushl record_buffer_ptr
+	call  deallocate
+</programlisting>
+
+<para>
+Now you can build your program with the following commands:
+</para>
+
+<programlisting>
+as read-records.s -o read-records.o
+ld alloc.o read-record.o read-records.o write-newline.o count-chars.o -o read-records
+</programlisting>
+
+<para>
+You can then run your program by doing <literal>./read-records</literal>.
+</para>
+
+<para>
+The uses of dynamic memory allocation may not be apparent to you at this point, but as
+you go from academic exercises to real-life programs you will use it continually.
+</para>
+
+</sect1>
+
+<sect1>
+<title>More Information</title>
+
+<para>
+More information on memory handling in Linux and other operating systems can be
+found at the following locations:
+</para>
+
+<itemizedlist>
+<listitem><para>More information about the memory layout of Linux programs can be found in Konstantin Boldyshev's document, "Startup state of a Linux/i386 ELF binary", available at http://linuxassembly.org/startup.html</para></listitem>
+<listitem><para>A good overview of virtual memory in many different systems is available at http://cne.gmu.edu/modules/vm/</para></listitem>
+<listitem><para>Several in-depth articles on Linux's virtual memory subsystem is available at http://www.nongnu.org/lkdp/files.html</para></listitem>
+<listitem><para>Doug Lea has written up a description of his popular memory allocator at http://gee.cs.oswego.edu/dl/html/malloc.html</para></listitem>
+<listitem><para>A paper on the 4.4 BSD memory allocator is available at http://docs.freebsd.org/44doc/papers/malloc.html</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<sect1>
+<title>Review</title>
+
+<sect2>
+<title>Know the Concepts</title>
+
+<itemizedlist>
+<listitem><para>Describe the layout of memory when a Linux program starts.</para></listitem>
+<listitem><para>What is the heap?</para></listitem>
+<listitem><para>What is the current break?</para></listitem>
+<listitem><para>Which direction does the stack grow in?</para></listitem>
+<listitem><para>Which direction does the heap grow in?</para></listitem>
+<listitem><para>What happens when you access unmapped memory?</para></listitem>
+<listitem><para>How does the operating system prevent processes from writing over each other's memory?</para></listitem>
+<listitem><para>Describe the process that occurs if a piece of memory you are using is currently residing on disk?</para></listitem>
+<listitem><para>Why do you need an allocator?</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Use the Concepts</title>
+
+<itemizedlist>
+<listitem><para>Modify the memory manager so that it calls <literal>allocate_init</literal> automatically if it hasn't been initialized.</para></listitem>
+<listitem><para>Modify the memory manager so that if the requested size of memory is smaller than the region chosen, it will break up the region into multiple parts.  Be sure to take into account the size of the new header record when you do this.</para></listitem>
+<listitem><para>Modify one of your programs that uses buffers to use the memory manager to get buffer memory rather than using the <literal>.bss</literal>.</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Going Further</title>
+
+<itemizedlist>
+<listitem><para>Research <emphasis>garbage collection</emphasis>.  What advantages and disadvantages does this have over the style of memory management used here?</para></listitem>
+<listitem><para>Research <emphasis>reference counting</emphasis>.  What advantages and disadvantages does this have over the style of memory management used here?</para></listitem>
+<listitem><para>Change the name of the functions to <literal>malloc</literal> and <literal>free</literal>, and build them into a shared library.  Use <literal>LD_PRELOAD</literal> to force them to be used as your memory manager instead of the default one.  Add some <literal>write</literal> system calls to STDOUT to verify that your memory manager is being used instead of the default one.</para></listitem>
+</itemizedlist>
+
+</sect2>
+</sect1>
+
+</chapter>

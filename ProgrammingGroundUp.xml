@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+
+<!-- FIXME - Dominique suggests I have an appendix of registers. Maybe in the Instructions appendix?  -->
+
+<!-- FIXME - need to find places that need more filling out.  Reviews, definitely.  -->
+
+<!-- TODO -
+  * Go back through and make sure that registers and memory are both fully described and fully distinguished
+-->
+
+<!-- INCOMPLETE PARTS:
+  * Instructions needs some more beef from reference books
+  * Reviews need to be finished out
+  * Finish index
+-->
+<!-- Appendices it would be nice to have:
+  * A full description of the calling sequence for UNIX
+  * A complete examination of the fetch-execute cycle
+  * A complete listing of registers and flags
+-->
+
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" [
+
+<!ENTITY index SYSTEM "index.xml">
+
+<!ENTITY introduction-chapter SYSTEM "IntroductionCh.xml">
+<!ENTITY memory-chapter SYSTEM "MemoryCh.xml">
+<!ENTITY firstprogs-chapter SYSTEM "FirstProgsCh.xml">
+<!ENTITY functions-chapter SYSTEM "FunctionsCh.xml">
+<!ENTITY files-chapter SYSTEM "FilesCh.xml">
+<!ENTITY robust-chapter SYSTEM "RobustCh.xml">
+<!ENTITY memoryint-chapter SYSTEM "MemoryIntCh.xml">
+<!ENTITY linking-chapter SYSTEM "LinkingCh.xml">
+<!ENTITY counting-chapter SYSTEM "CountingCh.xml">
+<!ENTITY otherlang-chapter SYSTEM "OtherLangCh.xml">
+<!ENTITY optimization-chapter SYSTEM "OptimizationCh.xml">
+<!ENTITY guidelines-chapter SYSTEM "GuidelinesCh.xml">
+<!ENTITY wherenext-chapter SYSTEM "WhereNextCh.xml">
+<!ENTITY records-chapter SYSTEM "RecordsCh.xml">
+
+<!ENTITY ascii-appendix SYSTEM "ASCIIAp.xml">
+<!ENTITY gui-appendix SYSTEM "GUIAp.xml">
+<!ENTITY syscall-appendix SYSTEM "SyscallAp.xml">
+<!ENTITY c-translation-appendix SYSTEM "CTranslationAp.xml">
+<!ENTITY history-appendix SYSTEM "HistoryAp.xml">
+<!ENTITY instructions-appendix SYSTEM "InstructionsAp.xml">
+<!ENTITY gdb-appendix SYSTEM "GDBAp.xml">
+<!ENTITY fdl-appendix SYSTEM "FDLAp.xml">
+<!ENTITY dedication-appendix SYSTEM "DedicationAp.xml">
+
+<!ENTITY exit-s SYSTEM "exit.s">
+<!ENTITY error-exit-s SYSTEM "error-exit.s">
+<!ENTITY maximum-s SYSTEM "maximum.s">
+<!ENTITY factorial-s SYSTEM "factorial.s">
+<!ENTITY alloc-s SYSTEM "alloc.s">
+<!ENTITY toupper-s SYSTEM "toupper3.s">
+<!ENTITY toupper-nomm-s SYSTEM "toupper2.s">
+<!ENTITY toupper-nomm-simplified-s SYSTEM "toupper-nomm-simplified.s">
+<!ENTITY printf-example-s SYSTEM "printf-example.s">
+<!ENTITY helloworld-lib-s SYSTEM "helloworld-lib.s">
+<!ENTITY helloworld-nolib-s SYSTEM "helloworld-nolib.s">
+<!ENTITY Hello-World-c SYSTEM "Hello-World.c">
+<!ENTITY power-s SYSTEM "power.s">
+<!ENTITY gnome-example-s SYSTEM "gnome-example.s">
+<!ENTITY gnome-example-c-c SYSTEM "gnome-example-c.c">
+<!ENTITY gnome-example-py SYSTEM "gnome-example.py">
+<!ENTITY Hello-World-perl SYSTEM "Hello-World.pl">
+<!ENTITY Hello-World-python SYSTEM "Hello-World.py">
+<!ENTITY write-newline-s SYSTEM "write-newline.s">
+<!ENTITY count-chars SYSTEM "count-chars.s">
+<!ENTITY read-record SYSTEM "read-record.s">
+<!ENTITY record-def SYSTEM "record-def.s">
+<!ENTITY linux SYSTEM "linux.s">
+<!ENTITY write-record SYSTEM "write-record.s">
+<!ENTITY write-records SYSTEM "write-records.s">
+<!ENTITY read-records SYSTEM "read-records.s">
+<!ENTITY add-year SYSTEM "add-year.s">
+<!ENTITY integer-to-string SYSTEM "integer-to-string.s">
+<!ENTITY conversion-program SYSTEM "conversion-program.s">
+
+
+<!ENTITY percent "%">
+<!ENTITY ax "<literal>&percent;ax</literal>">
+<!ENTITY ax-indexed "<literal>&percent;ax</literal><indexterm><primary>&percent;ax</primary></indexterm>">
+<!ENTITY ah "<literal>&percent;ah</literal>">
+<!ENTITY ah-indexed "<literal>&percent;ah</literal><indexterm><primary>&percent;ah</primary></indexterm>">
+<!ENTITY al "<literal>&percent;al</literal>">
+<!ENTITY al-indexed "<literal>&percent;al</literal><indexterm><primary>&percent;al</primary></indexterm>">
+<!ENTITY eax "<literal>&percent;eax</literal>">
+<!ENTITY rax "<literal>&percent;rax</literal>">
+<!ENTITY ebx "<literal>&percent;ebx</literal>">
+<!ENTITY ecx "<literal>&percent;ecx</literal>">
+<!ENTITY edx "<literal>&percent;edx</literal>">
+<!ENTITY edi "<literal>&percent;edi</literal>">
+<!ENTITY esp "<literal>&percent;esp</literal>">
+<!ENTITY ebp "<literal>&percent;ebp</literal>">
+<!ENTITY eip "<literal>&percent;eip</literal>">
+<!ENTITY cl "<literal>&percent;cl</literal>">
+<!ENTITY dl "<literal>&percent;dl</literal>">
+<!ENTITY eflags "<literal>&percent;eflags</literal>">
+
+<!ENTITY eax-indexed "<literal>&percent;eax</literal><indexterm><primary><literal>&percent;eax</literal></primary></indexterm>">
+<!ENTITY ebx-indexed "<literal>&percent;ebx</literal><indexterm><primary><literal>&percent;ebx</literal></primary></indexterm>">
+<!ENTITY ecx-indexed "<literal>&percent;ecx</literal><indexterm><primary><literal>&percent;ecx</literal></primary></indexterm>">
+<!ENTITY edx-indexed "<literal>&percent;edx</literal><indexterm><primary><literal>&percent;edx</literal></primary></indexterm>">
+<!ENTITY edi-indexed "<literal>&percent;edi</literal><indexterm><primary><literal>&percent;edi</literal></primary></indexterm>">
+<!ENTITY esi-indexed "<literal>&percent;esi</literal><indexterm><primary><literal>&percent;esi</literal></primary></indexterm>">
+<!ENTITY esp-indexed "<literal>&percent;esp</literal><indexterm><primary><literal>&percent;esp</literal></primary></indexterm>">
+<!ENTITY ebp-indexed "<literal>&percent;ebp</literal><indexterm><primary><literal>&percent;ebp</literal></primary></indexterm>">
+<!ENTITY eip-indexed "<literal>&percent;eip</literal><indexterm><primary><literal>&percent;eip</literal></primary></indexterm>">
+<!ENTITY cl-indexed "<literal>&percent;cl</literal><indexterm><primary><literal>&percent;cl</literal></primary></indexterm>">
+<!ENTITY eflags-indexed "<literal>&percent;eflags</literal><indexterm><primary><literal>&percent;eflags</literal></primary></indexterm>">
+]>
+
+<book>
+<bookinfo>
+<title>Programming from the Ground Up</title>
+<author>
+<firstname>Jonathan</firstname>
+<surname>Bartlett</surname>
+</author>
+<editor>
+<firstname>Dominick</firstname>
+<surname>Bruno</surname>
+<lineage>Jr.</lineage>
+</editor>
+<copyright><year>2004</year><holder>Jonathan Bartlett</holder></copyright>
+<!-- NOTE - I'll add these back in when the DSSSL stylesheets actually support them -->
+<!-- NOTE - I have to at least use DocBook 4.2 to get these entities, which means I have to point RH to a special catalog file because the XML 4.2 version is messed up (uses SGML directory instead of XML) -->
+<!--<biblioid class="isbn">0-9752838-4-7</biblioid>-->
+<!--<biblioid class="libraryofcongress">2004091465</biblioid>-->
+<legalnotice>
+<para>
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in
+<xref linkend="fdl" />.   In addition, you are granted full rights
+to use the code examples for any purpose without even having to credit
+the authors.
+</para>
+
+<para>
+To receive a copy of this book in electronic form, please visit the website
+http://savannah.nongnu.org/projects/pgubook/  This site contains the 
+instructions for downloading a transparent copy of this book 
+as defined by the GNU Free Documentation License.
+</para>
+
+<para>
+All trademarks are property of their respective owners.
+</para>
+</legalnotice>
+
+<!-- NOTE - the following are not actual legal notices, they are just
+     presented this way so they would be displayed correctly by the
+     DocBook processor
+  -->
+<legalnotice>
+<para>
+ISBN 0-9752838-4-7
+</para>
+
+<para>
+Published by Bartlett Publishing in Broken Arrow, Oklahom 
+</para>
+
+<para>
+Library of Congress Control Number: 2004091465
+</para>
+
+<para>
+Bartlett Publishing Cataloging-in-Publication Data
+<mediaobject>
+<imageobject>
+<imagedata fileref="cip.png" format="PNG" />
+</imageobject>
+</mediaobject>
+</para>
+
+</legalnotice>
+
+<legalnotice>
+<para>
+This book can be purchased at http://www.bartlettpublishing.com/
+</para>
+</legalnotice>
+
+<legalnotice>
+<para>
+This book is not a reference book, it is an introductory book.  It
+is therefore not suitable by itself to learn how to professionally
+program in x86 assembly language, as some details have been left out
+to make the learning process smoother.  The point of the book is to
+help the student understand how assembly language and computer programming
+works, not to be a reference to the subject.  Reference information about
+a particular processor can be obtained by contacting the company which
+makes it.
+</para>
+</legalnotice>
+
+
+</bookinfo>
+
+<!-- This could be used elsewhere
+<para>
+Programming is a tool.  It helps you get from one point to another.
+Some tools, like tax software, are very specific.  Others, like
+spreadsheets, are more general.  There are even many tools for
+creating tools.  However, never forget that programming is simply
+a tool for accomplishing a purpose.  Many, many people assume that
+whatever their problem is, a computer is the best answer.  Often
+it is, but sometimes just using the phone, or keeping a box of
+note cards in the back room will solve your problem more easily
+with less work.  As a programmer, you need to know the limits
+of the tool you use.
+</para>
+-->
+
+&introduction-chapter;
+&memory-chapter;
+&firstprogs-chapter;
+&functions-chapter;
+&files-chapter;
+&records-chapter;
+&robust-chapter;
+&linking-chapter;
+&memoryint-chapter;
+&counting-chapter;
+&otherlang-chapter;
+&optimization-chapter;
+&wherenext-chapter;
+
+&gui-appendix;
+&instructions-appendix;
+&syscall-appendix;
+&ascii-appendix;
+&c-translation-appendix;
+&gdb-appendix;
+
+&history-appendix;
+&fdl-appendix;
+
+&dedication-appendix;
+
+&index;
+
+</book>

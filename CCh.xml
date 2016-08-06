@@ -1,0 +1,229 @@
+<chapter>
+<title>The C Language</title>
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+<para>
+In this chapter we will begin to look at our first "real-world"
+programming language.  Assembly language is the language used
+at the machine's level, but most people (including me) find
+coding in assembly language too cumbersome for normal use.
+Many computer languages have been invented to make the programming
+task easier.  Knowing a wide variety of languages is useful for
+many reasons, including
+
+<itemizedlist>
+<listitem><para>Different languages are good for different types of projects</para></listitem>
+<listitem><para>Different companies have different standard languages, so knowing more languages makes your skills more marketable</para></listitem>
+<listitem><para>The more languages you know, the easier it is to pick up new ones</para></listitem>
+<listitem><para>Different languages are based on different concepts, which will help you to learn different and better ways of doing things</para></listitem>
+</itemizedlist>
+
+This chapter focuses on the C language.
+</para>
+
+<sect1>
+<title>Compiled and Interpretted Languages</title>
+
+<para>
+C is a <emphasis>compiled</emphasis> language.  When you wrote in
+assembly language, each instruction you wrote was translated into
+exactly one machine instruction for processing.  With compilers,
+an instruction can translate into one or hundreds of machine 
+instructions.  In fact, depending on how advanced your compiler
+is, it might even restructure parts of your code to make it faster.
+In assembly language, what you write is what you get.
+</para>
+
+<para>
+There are also languages that are <emphasis>translated</emphasis>
+languages.  These languages require that the user run a program
+called a <emphasis>translator</emphasis> (also called a 
+<emphasis>run-time environment</emphasis>) that in turn runs the
+given program.  These are usually slower than compiled programs,
+since the translator has to read and interpret the code as it goes 
+along.  However, in well-made translators, this time can be
+fairly negligible.  There is also a class of hybrid languages
+which partially compile a program before execution into byte-codes,
+which are only machine readable.  The translator can read the
+byte-codes much faster than it can read the regular language, so
+the reading step only happens once.
+</para>
+
+<para>
+There are many reasons to choose one or the other.  Compiled programs
+are nice, because you don't have to already have a translator installed
+in the user's machine.  You have to have a compiler for the language,
+but the users of your program don't.  In a translated language, you
+have to be sure that the user has a translator for your program,
+and that the computer knows which translator runs your program.
+</para>
+
+</sect1>
+
+<sect1>
+<title>Your First C Program</title>
+
+<para>
+As you may have noticed, I enjoy presenting you with a program first,
+and then explaining how it works.  So, here is your first program,
+which prints "Hello world" to the screen and exits.  Type it in, and
+give it the name Hello-World.c
+
+<programlisting>
+&Hello-World-c;
+</programlisting>
+
+As you can see, it's a pretty simple program.  To compile it,
+run the command
+
+<programlisting>
+gcc -o HelloWorld Hello-World.c
+</programlisting>
+
+To run the program, do
+
+<programlisting>
+./HelloWorld
+</programlisting>
+
+Let's look at how this program was put together.
+</para>
+
+<para>
+Comments in C are started with <literal>/*</literal> and ended with
+<literal>*/</literal>.  Comments can span multiple lines, but 
+many people prefer to start and end comments on the same line
+so they don't get confused.
+</para>
+
+<para>
+<literal>#include &lt;stdio.h&gt;</literal> is the first part of
+the program.  This is a <emphasis>preprocessor directive</emphasis>.
+C compiling is split into two stages - the preprocessor and the
+main compiler.  This directive tells the preprocessor to look
+for the file <filename>stdio.h</filename> and paste it into
+your program.  So, everything in <filename>stdio.h</filename> is
+now in your program just as if you typed it there yourself.  The angle brackets
+around the filename tell the compiler to look in its standard
+paths for the file (<filename>/usr/include</filename> and 
+<filename>/usr/local/include</filename>, usually).  If it was
+in quotes, like <literal>#include "stdio.h"</literal> it would
+look in the current directory for the file.  Anyway, 
+<filename>stdio.h</filename> contains the declarations for 
+the standard input and output functions and variables.   The next few
+lines are simply comments about the program.
+</para>
+
+<para>
+Then there is the line <literal>int main(int argc, char **argv)</literal>.
+This is the start of a function.  C Functions are declared with their 
+name, arguments and return type.  This declaration says taht the functions
+name is <literal>main</literal>, it returns an <literal>int</literal> 
+(integer), and has two arguments - an <literal>int</literal> called
+<literal>argc</literal> and a <literal>char **</literal> called 
+<literal>argv</literal>.  You don't have to worry about where the arguments
+are positioned on the stack - the C compiler takes care of that for you.
+You also don't have to worry about loading values into and out of registers.
+The <literal>main</literal> function is a special function - it is the
+start or all C programs.  It always takes two parameters.  The first 
+parameter is the number of arguments given to this command, and the
+second parameter is a list of the arguments that were given.
+</para>
+
+<para>
+The next line is a function call.  In assembly language, you had to 
+push the arguments of a function onto the stack, and then call the function.
+C takes care of this complexity for you.  You simply have to call the
+function with the parameters in parenthesis.  In this case, we call
+the function <literal>puts</literal>, with a single parameter.  This
+parameter is the 
+</para>
+
+<!--they do in assembly language, except that -->
+
+<!--
+
+Advanced Linking Techniques
+
+LD_PRELOAD
+
+loading a library on the fly
+
+static libraries
+
+sonames
+
+ELF sections and special sections (.ini .fini or whatever)
+
+Process for loading and linking ELF files
+
+Other object file types (COFF a.out)
+
+The file format used to store programs in Linux is called ELF, which
+stands for "Executable and Linking Format".  ELF is very flexible,
+but it is also fairly complex.  Let's take a look at how we've
+been using ELF so far.
+</para>
+
+<sect2>
+<title>ELF Sections</title>
+<para>
+The <literal>.section</literal> directives we've been using
+are commands that tell the linker, <literal>ld</literal>, to
+group things together.  There are many predefined sections.
+The ones we mainly use are <literal>.data</literal> and 
+<literal>.text</literal>.  In your assembly code, you can mix
+<literal>.data</literal> and <literal>.text</literal> sections,
+and the linker will put everything in a section together.  Let's
+take a look at one of our files.  Let's look at the 
+<literal>toupper</literal> file we created earlier.  If you
+run the command <literal>objdump -h toupper</literal>, you will
+get a listing that looks like this:
+</para>
+</sect2>
+
+-->
+
+</sect1>
+<sect1>
+<title>Review</title>
+
+<sect2>
+<title>Know the Concepts</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Use the Concepts</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Going Further</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+
+</sect1>
+</chapter>

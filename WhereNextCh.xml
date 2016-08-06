@@ -1,0 +1,362 @@
+<chapter id="wherenextch">
+<title>Moving On from Here</title>
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+<para>
+Congratulations on getting this far.  You should now have a basis for 
+understanding the issues involved in many areas of programming.  Even
+if you never use assembly language again, you have gained a valuable
+perspective and mental framework for understanding the rest of computer
+science. 
+</para>
+
+<para>
+There are essentially three methods to learn to program:
+</para>
+
+<itemizedlist>
+<listitem><para>From the Bottom Up - This is how this book teaches.  It starts with low-level programming, and works toward more generalized teaching.</para></listitem>
+<listitem><para>From the Top Down - This is the opposite direction.  This focuses on what you want to do with the computer, and teaches you how to break it down more and more until you get to the low levels.</para></listitem>
+<listitem><para>From the Middle - This is characterized by books which teach a specific programming language or API.  These are not as concerned with concepts as they are with specifics.</para></listitem>
+</itemizedlist>
+
+<para>
+Different people like different approaches, but a good programmer takes all of 
+them into account.  The bottom-up approaches help you understand the machine 
+aspects, the top-down approaches help you understand the problem-area aspects,
+and the middle approaches help you with practical questions and answers.  To
+leave any of these aspects out would be a mistake.
+</para>
+
+<para>
+Computer Programming is a vast subject.  As a programmer, you will need
+to be prepared to be constantly learning and pushing your limits.  These
+books will help you do that.  They not only teach their subjects, but also
+teach various ways and methods of <emphasis>thinking</emphasis>.  As
+Alan Perlis said, "A language that doesn't affect the way you think about
+programming is not worth knowing" 
+(http://www.cs.yale.edu/homes/perlis-alan/quotes.html).  If you are 
+constantly looking for new and better ways of doing and thinking, you
+will make a successful programmer.  If you do not seek to enhance yourself,
+"A little sleep, a little slumber, a little folding of the hands to rest - 
+and poverty will come on you like a bandit and scarcity like an armed man."
+(Proverbs 24:33-34 NIV).  Perhaps not quite that severe, but still, it is best
+to always be learning.
+</para>
+
+<para>
+These books were selected because of their content and the amount of respect
+they have in the computer science world.  Each of them brings something
+unique.  There are many books here.  The best way to start would be to
+look through online reviews of several of the books, and find a starting
+point that interests you.
+</para>
+
+<sect1>
+<title>From the Bottom Up</title>
+
+<para>
+This list is in the best reading order I could find.  It's not necessarily
+easiest to hardest, but based on subject matter.  
+</para>
+
+<itemizedlist>
+<listitem><para><citetitle>Programming from the Ground Up</citetitle> by Jonathan Bartlett</para></listitem>
+<listitem><para><citetitle>Introduction to Algorithms</citetitle> by Thomas H. Cormen, Charles E. Leiserson, and Ronald L. Rivest</para></listitem>
+<listitem><para><citetitle>The Art of Computer Programming</citetitle> by Donald Knuth (3 volume set - volume 1 is the most important)</para></listitem>
+<listitem><para><citetitle>Programming Languages</citetitle> by Samuel N. Kamin</para></listitem>
+<listitem><para><citetitle>Modern Operating Systems</citetitle> by Andrew Tanenbaum</para></listitem>
+<listitem><para><citetitle>Linkers and Loaders</citetitle> by John Levine</para></listitem>
+<listitem><para><citetitle>Computer Organization and Design: The Hardware/Software Interface</citetitle> by David Patterson and John Hennessy</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<sect1>
+<title>From the Top Down</title>
+
+<para>
+These books are arranged from the simplest to the hardest.  However, they
+can be read in any order you feel comfortable with.
+</para>
+
+<itemizedlist>
+<listitem><para><citetitle>How to Design Programs</citetitle> by Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, and Shiram Krishnamurthi, available online at http://www.htdp.org/</para></listitem>
+<listitem><para><citetitle>Simply Scheme: An Introduction to Computer Science</citetitle> by Brian Harvey and Matthew Wright</para></listitem>
+<listitem><para><citetitle>How to Think Like a Computer Scientist: Learning with Python</citetitle> by Allen Downey, Jeff Elkner, and Chris Meyers, available online at http://www.greenteapress.com/thinkpython/</para></listitem>
+<listitem><para><citetitle>Structure and Interpretation of Computer Programs</citetitle> by Harold Abelson and Gerald Jay Sussman with Julie Sussman, available online at http://mitpress.mit.edu/sicp/</para></listitem>
+<listitem><para><citetitle>Design Patterns</citetitle> by Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides</para></listitem>
+<listitem><para><citetitle>What not How: The Rules Approach to Application Development</citetitle> by Chris Date</para></listitem>
+<listitem><para><citetitle>The Algorithm Design Manual</citetitle> by Steve Skiena</para></listitem>
+<listitem><para><citetitle>Programming Language Pragmatics</citetitle> by Michael Scott</para></listitem>
+<listitem><para><citetitle>Essentials of Programming Languages</citetitle> by Daniel P. Friedman, Mitchell Wand, and Christopher T. Haynes</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<sect1>
+<title>From the Middle Out</title>
+
+<para>
+Each of these is the best book on its subject.  If you need to know these
+languages, these will tell you all you need to know.
+</para>
+
+<itemizedlist>
+<listitem><para><citetitle>Programming Perl</citetitle> by Larry Wall, Tom Christiansen, and Jon Orwant</para></listitem>
+<listitem><para><citetitle>Common LISP: The Language</citetitle> by Guy R. Steele</para></listitem>
+<listitem><para><citetitle>ANSI Common LISP</citetitle> by Paul Graham</para></listitem>
+<listitem><para><citetitle>The C Programming Language</citetitle> by Brian W. Kernighan and Dennis M. Ritchie</para></listitem>
+<listitem><para><citetitle>The Waite Group's C Primer Plus</citetitle> by Stephen Prata</para></listitem>
+<listitem><para><citetitle>The C++ Programming Language</citetitle> by Bjarne Stroustrup</para></listitem>
+<listitem><para><citetitle>Thinking in Java</citetitle> by Bruce Eckel, available online at http://www.mindview.net/Books/TIJ/</para></listitem>
+<listitem><para><citetitle>The Scheme Programming Language</citetitle> by Kent Dybvig</para></listitem>
+<listitem><para><citetitle>Linux Assembly Language Programming</citetitle> by Bob Neveln</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<sect1>
+<title>Specialized Topics</title>
+
+<para>
+These books are the best books that cover their topic.  They are thorough and
+authoritative.  To get a broad base of knowledge, you should read several
+outside of the areas you normally program in.
+</para>
+
+<itemizedlist>
+<listitem><para>Practical Programming - <citetitle>Programming Pearls</citetitle> and <citetitle>More Programming Pearls</citetitle> by Jon Louis Bentley</para></listitem>
+<listitem><para>Databases - <citetitle>Understanding Relational Databases</citetitle> by Fabian Pascal</para></listitem>
+<listitem><para>Project Management - <citetitle>The Mythical Man-Month</citetitle> by Fred P. Brooks</para></listitem>
+<listitem><para>UNIX Programming - <citetitle>The Art of UNIX Programming</citetitle> by Eric S. Raymond, available online at http://www.catb.org/~esr/writings/taoup/</para></listitem>
+<listitem><para>UNIX Programming - <citetitle>Advanced Programming in the UNIX Environment</citetitle> by W. Richard Stevens</para></listitem>
+<listitem><para>Network Programming - <citetitle>UNIX Network Programming</citetitle> (2 volumes) by W. Richard Stevens</para></listitem>
+<listitem><para>Generic Programming - <citetitle>Modern C++ Design</citetitle> by Andrei Alexandrescu</para></listitem>
+<listitem><para>Compilers - <citetitle>The Art of Compiler Design: Theory and Practice</citetitle> by Thomas Pittman and James Peters</para></listitem>
+<listitem><para>Compilers - <citetitle>Advanced Compiler Design and Implementation</citetitle> by Steven Muchnick</para></listitem>
+<listitem><para>Development Process - <citetitle>Refactoring: Improving the Design of Existing Code</citetitle> by Martin Fowler, Kent Beck, John Brant, William Opdyke, and Don Roberts</para></listitem>
+<listitem><para>Typesetting - <citetitle>Computers and Typesetting</citetitle> (5 volumes) by Donald Knuth</para></listitem>
+<listitem><para>Cryptography - <citetitle>Applied Cryptography</citetitle> by Bruce Schneier</para></listitem>
+<listitem><para>Linux - <citetitle>Professional Linux Programming</citetitle> by Neil Matthew, Richard Stones, and 14 other people</para></listitem>
+<listitem><para>Linux Kernel - <citetitle>Linux Device Drivers</citetitle> by Alessandro Rubini and Jonathan Corbet</para></listitem>
+<listitem><para>Open Source Programming - <citetitle>The Cathedral and the Bazaar: Musings on Linux and Open Source by an Accidental Revolutionary</citetitle> by Eric S. Raymond</para></listitem>
+<listitem><para>Computer Architecture - <citetitle>Computer Architecture: A Quantitative Approach</citetitle> by David Patterson and John Hennessy</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<sect1>
+<title>Further Resources on Assembly Language</title>
+
+<para>
+In assembly language, your best resources are on the web.
+</para>
+
+<itemizedlist>
+<listitem><para>http://www.linuxassembly.org/ - a great resource for Linux assembly language programmers</para></listitem>
+<listitem><para>http://www.sandpile.org/ - a repository of reference material on x86, x86-64, and compatible processors</para></listitem>
+<listitem><para>http://www.x86.org/ - Dr. Dobb's Journal Microprocessor Resources</para></listitem>
+<listitem><para>http://www.drpaulcarter.com/pcasm/ - Dr. Paul Carter's PC Assembly Language Page</para></listitem>
+<listitem><para>http://webster.cs.ucr.edu/ - The Art of Assembly Home Page</para></listitem>
+<listitem><para>http://www.intel.com/design/pentium/manuals/ - Intel's manuals for their processors</para></listitem>
+<listitem><para>http://www.janw.easynet.be/ - Jan Wagemaker's Linux assembly language examples</para></listitem>
+<listitem><para>http://www.azillionmonkeys.com/qed/asm.html - Paul Hsieh's x86 Assembly Page</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+<!--
+<para>
+As you learn more, continue trying to build it upon the foundation you
+have already laid.  When you learn new languages and APIs, remember that
+they all eventually go down to the assembly language level.  It's nothing
+that you couldn't do yourself if you had the time.  Everything is within
+a reaching distance.
+</para>
+
+<para>
+That said, you still have much to learn which is not covered by this book.  
+This chapter describes what you need to learn, and where to find that 
+information.  In fact, programming is only one part of what programmers
+do.  Programmers generally need to be knowledgeable in the following areas:
+
+<itemizedlist>
+<listitem><para>Logical Data Organization</para></listitem>
+<listitem><para>Physical Data Organization</para></listitem>
+<listitem><para>Program Architecture</para></listitem>
+<listitem><para>Project Management</para></listitem>
+<listitem><para>System Administration and Networking</para></listitem>
+<listitem><para>Security</para></listitem>
+</itemizedlist>
+</para>
+
+<sect1>
+<title>Logical Data Organization</title>
+
+<para>
+Programs operate on data.  They are used to process data, produce new data,
+and be used for data entry.  Therefore, knowing about data organization
+is extremely important.  Logical data organization is mostly learning how
+to define the relationships between data.  Note that logical organization
+is simply how data are related to each other logically, not how it is actually
+stored within a computer.  Learning about relational
+databases is probably the best way to gain skill in this area.<footnote>
+<para>Please note that learning SQL is not all there is to know about 
+databases and logical data organization.</para></footnote>  Books that
+will help you in this area are:
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</para>
+
+</sect1>
+
+<sect1>
+<title>Physical Data Organization</title>
+
+<para>
+Physical data organization consists of methods of storing data on a computer
+for retrieval and update.  This field is mostly referred to as data structures.
+This book only really talks about two data structures - the array and
+the linked list.  However, there are many other data structures available
+to you as a programmer.  Having a background in assembly language will
+help you understand data structure design much better.
+</para>
+
+<para>
+The following books are great ones for learning about data structures:
+
+<itemizedlist>
+</itemizedlist>
+</para>
+
+</sect1>
+
+<sect1>
+<title>Program Architecture</title>
+
+<para>
+Program architecture, or how to design and write programs effectively,
+is not taught in this book.  This book teaches the concepts of how 
+programming works, but not how to go about designing and writing a
+large-scale program.   The best books on this subject are:
+
+<itemizedlist>
+</itemizedlist>
+
+In addition to these books, one of the best ways to learn good program
+design techniques is to read well-architected programs.  The Free Software
+and Open Source communities contain a number of programs which can show
+you great programming practices on both large and small scales.
+</para>
+
+</sect1>
+
+<sect1>
+<title>Project Management</title>
+
+<para>
+A lot of programming is project management - learning to gather requirements,
+calculate return on investment, estimate schedules, talk to people about
+requirements, status reports, etc.  Contrary to popular thought, successful
+programmers almost always have excellent communication skills, especially
+with nontechnical people.  Being able to communicate technical problems 
+and options to nontechnical people is an essential skill.  Being able to
+listen to nontechnical people and translating their needs into technical
+requirements is also an essential skill.  Programming without effective
+communication is a hobby, not a profession.  Being able to run a project
+successfully can often be more important than the technical skills, especially
+when outsourcing is an option.
+</para>
+
+<para>
+Books on project management include:
+
+<itemizedlist>
+</itemizedlist>
+
+</para>
+
+</sect1>
+
+<sect1>
+<title>System Administration and Networking</title>
+
+<para>
+In small companies, the programmer and the system administrator are often
+the same person.  However, even when the tasks are separate, the programmer
+needs to have some understanding of system administration concepts.  Otherwise
+you are likely to create headaches for the system administrator who has to
+install and administer your program on a daily basis.  System administration
+varies quite a bit from organization to organization, but there are still
+books you can read to get a good grasp on the subject, including:
+
+<itemizedlist>
+<listitem><para><remark>FIXME - what books go here?</remark></para></listitem>
+</itemizedlist>
+</para>
+
+</sect1>
+
+<sect1>
+<title>Security</title>
+
+<para>
+Security is a fundamental concept to computer programmers, especially when 
+writing web applications, server software, or any software that could be
+used as a component of such systems.  In fact, because most software 
+interacts with the network and outside systems in some way, all programmers
+should have a thorough understanding of the principles involved in developing
+secure applications.
+</para>
+
+<para>
+Books with 
+</para>
+
+</sect1>
+<sect1>
+<title>Review</title>
+
+<sect2>
+<title>Know the Concepts</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Use the Concepts</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>Going Further</title>
+
+<itemizedlist>
+<listitem><para></para></listitem>
+</itemizedlist>
+
+</sect2>
+</sect1>
+-->
+</chapter>

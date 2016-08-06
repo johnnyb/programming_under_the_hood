@@ -1,0 +1,27 @@
+<appendix>
+<!--
+
+Copyright 2002 Jonathan Bartlett
+
+Permission is granted to copy, distribute and/or modify this
+document under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover Texts,
+and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+
+-->
+
+<title>Document History</title>
+
+<itemizedlist>
+<listitem><para>12/17/2002 - Version 0.5 - Initial posting of book under GNU FDL</para></listitem>
+<listitem><para>07/18/2003 - Version 0.6 - Added ASCII appendix, finished the discussion of the CPU in the Memory chapter, reworked exercises into a new format, corrected several errors.  Thanks to Harald Korneliussen for the many suggestions and the ASCII table.</para></listitem>
+<listitem><para>01/11/2004 - Version 0.7 - Added C translation appendix, added the beginnings of an appendix of x86 instructions, added the beginnings of a GDB appendix, finished out the files chapter, finished out the counting chapter, added a records chapter, created a source file of common linux definitions, corrected several errors, and lots of other fixes</para></listitem>
+<listitem><para>01/22/2004 - Version 0.8 - Finished GDB appendix, mostly finished w/ appendix of x86 instructions, added section on planning programs, added lots of review questions, and got everything to a completed, initial draft state.</para></listitem>
+<listitem><para>01/29/2004 - Version 0.9 - Lots of editting of all chapters.  Made code more consistent and made explanations clearer.  Added some illustrations.</para></listitem>
+<listitem><para>01/31/2004 - Version 1.0 - Rewrote chapter 9.  Added full index.  Lots of minor corrections.</para></listitem>
+<listitem><para>04/18/2004 - Version 1.1 - Lots of minor updates based on reader comments.  Made cleared distinction between dynamic and shared libraries.</para></listitem>
+</itemizedlist>
+
+</appendix>
+
