@@ -9,14 +9,17 @@ fi
 
 cp $SOURCE $DEST
 
+perl -pi -e 's!\\!\\\\!gsi' $DEST
+perl -pi -e 's!_!\\_!gsi' $DEST
 perl -pi -e 's!\$!\\\$!gsi' $DEST
 perl -pi -e 's!\#!\\\#!gsi' $DEST
+perl -pi -e 's!%!\\%!gsi' $DEST
 
 #  Strip comments
 perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi' $DEST
 
 # Convert all &eax; to {\eax}
-REGS=("ax ah al eax ebx ecx edx edi esp ebp esi eip cl dl eflags")
+REGS=("rax ax ah al eax ebx ecx edx edi esp ebp esi eip cl dl eflags")
 for REG in $REGS
 do
 	perl -pi -e "s/&${REG};/{\\\\${REG}Reg}/g;" $DEST
