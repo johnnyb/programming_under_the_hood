@@ -9,8 +9,6 @@ fi
 
 cp $SOURCE $DEST
 
-echo $SOURCE
-echo $DEST
 
 #  Strip comments
 perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi' $DEST
@@ -19,7 +17,6 @@ perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi
 REGS=("ax ah al eax ebx ecx edx edi esp ebp eip cl dl eflags")
 for REG in $REGS
 do
-	echo $REG
 	perl -pi -e "s/&${REG};/{\\\\${REG}Reg}/g;" $DEST
 	perl -pi -e "s/&${REG}-indexed;/{\\\\${REG}RegIdx}/g;" $DEST
 	perl -pi -e "s/%${REG}/{\\\\${REG}Bare}/g;" $DEST
@@ -48,16 +45,34 @@ perl -pi -e "BEGIN{undef \$/;} s/<appendix id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\
 perl -pi -e "BEGIN{undef \$/;} s/<appendix>\s*<title>(.*?)<\\/title>/\\\\chapter{\$1}\n/gsi" $DEST
 perl -pi -e 's!</appendix>!!' $DEST
 
-# Convert sect1
+# Convert simplesect
+perl -pi -e "BEGIN{undef \$/;} s/<simplesect id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<simplesect>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
+perl -pi -e 's!</simplesect>!!gsi' $DEST
 
+
+# Convert sect1
 perl -pi -e "BEGIN{undef \$/;} s/<sect1 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<sect1>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
 perl -pi -e 's!</sect1>!!gsi' $DEST
+
+# Convert xref linkend
+perl -pi -e 's!<xref linkend="(.*?)" />!\\autoref{$1}!gsi;' $DEST
 
 # Convert sect2
 perl -pi -e "BEGIN{undef \$/;} s/<sect2 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<sect2>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
 perl -pi -e 's!</sect2>!!gsi' $DEST
+
+# Paragraphs with ids
+# <formalpara>
+# <itemizedlist mark="opencircle">
+# <trademark class="registered">stuff</trademark>
+# <note> with <title>
+# <warning> with <title>
+# <mediaobject>/imageobject/imagedata fileref format/caption
+# <screen>
+
 
 #  Convert footnote
 perl -pi -e 'BEGIN{undef $/;} s!<footnote>\s*<para>\s*(.*?)</para>\s*</footnote>!\\footnote{$1}!gsi' $DEST
@@ -75,6 +90,9 @@ perl -pi -e 'BEGIN{undef $/;} s!<filename>(.*?)</filename>!\\icodefilename{$1}!g
 
 # Convert citetitle
 perl -pi -e 'BEGIN{undef $/;} s!<citetitle>(.*?)</citetitle>!\\documentname{$1}!gsi;' $DEST
+
+# Convert productname
+perl -pi -e 'BEGIN{undef $/;} s!<productname>(.*?)</productname>!\\documentname{$1}!gsi;' $DEST
 
 # <variablelist>
 perl -pi -e 's!<variablelist>\s*!\\begin{description}!gsi' $DEST

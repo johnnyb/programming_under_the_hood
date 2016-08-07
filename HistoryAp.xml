@@ -1,4 +1,6 @@
 <appendix>
+<title>Document History</title>
+
 <!--
 
 Copyright 2002 Jonathan Bartlett
@@ -10,8 +12,6 @@ Foundation; with no Invariant Sections, with no Front-Cover Texts,
 and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
 
 -->
-
-<title>Document History</title>
 
 <itemizedlist>
 <listitem><para>12/17/2002 - Version 0.5 - Initial posting of book under GNU FDL</para></listitem>
