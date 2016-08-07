@@ -1,4 +1,5 @@
 <appendix id="asciilisting">
+<title>Table of ASCII Codes</title>
 <!--
 
 Copyright 2002 Jonathan Bartlett
@@ -10,7 +11,6 @@ Foundation; with no Invariant Sections, with no Front-Cover Texts,
 and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
 
 -->
-<title>Table of ASCII Codes</title>
 
 <para>
 To use this table, simply find the character or escape that you want the

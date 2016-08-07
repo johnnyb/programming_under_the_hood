@@ -30,7 +30,7 @@ perl -pi -e 's!\\lstinputlisting{([\w-]+)-s}!"\\lstinputlisting{" . $1 =~ s/-//g
 perl -pi -e 'BEGIN{undef $/;}s!<programlisting>(.*?)</programlisting>!\\begin{simpletyping}\n\\begin{lstlisting}$1\\end{lstlisting}\n\\end{simpletyping}\n!gsi' $DEST
 
 # Convert chapter
-perl -pi -e "BEGIN{undef \$/;} s/<chapter id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<chapter\\s*id=\"([^\"]*?)\">\\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<chapter>\s*<title>(.*?)<\\/title>/\\\\chapter{\$1}\n/gsi" $DEST
 perl -pi -e 's!</chapter>!!' $DEST
 
@@ -38,23 +38,24 @@ perl -pi -e 's!</chapter>!!' $DEST
 perl -pi -e 'BEGIN{undef $/;} s!<indexterm.*?>\s*<primary>\s*(.*?)\s*</primary>\s*</indexterm>!\\index{$1}!gsi' $DEST
 
 # Convert appendix
-perl -pi -e "BEGIN{undef \$/;} s/<appendix id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<appendix\s*id=\"([^\"]*?)\">\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<appendix>\s*<title>(.*?)<\\/title>/\\\\chapter{\$1}\n/gsi" $DEST
 perl -pi -e 's!</appendix>!!' $DEST
 
 # Convert simplesect
-perl -pi -e "BEGIN{undef \$/;} s/<simplesect id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<simplesect id=\"([^\"]*?)\">\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<simplesect>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
 perl -pi -e 's!</simplesect>!!gsi' $DEST
 
 
 # Convert sect1
-perl -pi -e "BEGIN{undef \$/;} s/<sect1 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<sect1\s*id=\"([^\"]*?)\">\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
 perl -pi -e "BEGIN{undef \$/;} s/<sect1>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
 perl -pi -e 's!</sect1>!!gsi' $DEST
 
 # Convert xref linkend
 perl -pi -e 's!<xref linkend="(.*?)" />!\\autoref{$1}!gsi;' $DEST
+
 
 # Convert sect2
 perl -pi -e "BEGIN{undef \$/;} s/<sect2 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
@@ -72,6 +73,11 @@ perl -pi -e 'BEGIN{undef $/;} s!<note>\s*<title>\s*(.*?)</title>\s*<para>\s*(.*?
 
 # <warning> with <title>
 perl -pi -e 'BEGIN{undef $/;} s!<warning>\s*<title>\s*(.*?)</title>\s*<para>\s*(.*?)\s*</para>\s*</warning>!\\begin{sidebar}[$1]\n$2\n\\end{sidebar}!gsi;' $DEST
+# Warning no title
+perl -pi -e 'BEGIN{undef $/;} s!<warning>\s*<para>\s*(.*?)\s*</para>\s*</warning>!\\begin{sidebar}[Warning]\n$1\n\\end{sidebar}!gsi;' $DEST
+
+# Example
+perl -pi -e 'BEGIN{undef $/;} s!<example>\s*<title>(.*?)</title>(.*?)</example>!\\begin{figure}\n$2\n\\caption{$1}\n\\end{figure}!gsi' $DEST
 
 # <mediaobject>/imageobject/imagedata fileref format/caption
 
@@ -80,6 +86,9 @@ perl -pi -e 'BEGIN{undef $/;} s!<mediaobject>\s*<imageobject>\s*<imagedata\s*fil
 
 # <screen>
 perl -pi -e 'BEGIN{undef $/;} s!<screen>(.*?)</screen>!\\begin{simpletyping}\n\\begin{lstlisting}$1\\end{lstlisting}\n\\end{simpletyping}!gsi' $DEST
+
+# <quote>
+perl -pi -e "BEGIN{undef $/;} s!<quote>(.*?)</quote>!\`\`\$1''!gsi;" $DEST
 
 
 #  Convert footnote
@@ -112,30 +121,39 @@ perl -pi -e 's!<orderedlist>\s*!\\begin{enumerate}!gsi' $DEST
 perl -pi -e 's!</orderedlist>!\\end{enumerate}!gsi' $DEST
 
 # <itemizedlist>
-perl -pi -e 's!<itemizedlist>\s*!\\begin{itemize}!gsi' $DEST
+perl -pi -e 's!<itemizedlist.*?>\s*!\\begin{itemize}!gsi' $DEST
 perl -pi -e 's!</itemizedlist>!\\end{itemize}!gsi' $DEST
 
 # List items
-perl -pi -e 'BEGIN{undef $/;} s!<listitem>\s*<para>\s*(.*?)\s*</para>\s*</listitem>\s*!\\item $1 \n!gsi' $DEST
+perl -pi -e 'BEGIN{undef $/;} s!<listitem>\s*<(?:formal)?para>\s*(.*?)\s*</(?:formal)?para>\s*</listitem>\s*!\\item $1 \n!gsi' $DEST
 
 # Convert emphasis
 perl -pi -e 'BEGIN{undef $/;} s!<emphasis>(.*?)</emphasis>!\\emph{$1}!gsi' $DEST
 
+# blockquote
+perl -pi -e 'BEGIN{undef $/;} s!<blockquote>(.*?)</blockquote>!\\begin{quote}$1\\end{quote}!gsi;' $DEST
 
+# wordasword
+perl -pi -e 's!<wordasword>(.*?)</wordasword>!\\icode{$1}!gsi' $DEST
 
 # Tables
-perl -pi -e 'BEGIN{undef $/;} s!<table>\s*<title>(.*?)</title>.*?<thead>(.*?)\s*</table>!\\begin{table}[h]\n\\begin{tabular}{FIXME}\n$2\n\\end{tabular}\n\\caption{$1}\n\\end{table}\n!gsi' $DEST
+perl -pi -e 'BEGIN{undef $/;} s!<table>\s*<title>(.*?)</title>.*?<(?:thead|tbody)>(.*?)\s*</table>!\\begin{table}[h]\n\\begin{tabular}{FIXME}\n$2\n\\end{tabular}\n\\caption{$1}\n\\end{table}\n!gsi' $DEST
 perl -pi -e 's!<thead>\s*!!gsi' $DEST
 perl -pi -e 's!</thead>\s*!!gsi' $DEST
 perl -pi -e 's!<tbody>\s*!!gsi' $DEST
 perl -pi -e 's!</tbody>\s*!!gsi' $DEST
-perl -pi -e 's!<tgroup>\s*!!gsi' $DEST
+perl -pi -e 's!<tgroup.*?>\s*!!gsi' $DEST
 perl -pi -e 's!</tgroup>\s*!!gsi' $DEST
+perl -pi -e 's!<colspec.*? />\s*!!gsi' $DEST
 perl -pi -e 'BEGIN{undef $/;}s!\s*<entry.*?>\s*(.*?)\s*</entry>\s*!$1 & !gsi' $DEST
 perl -pi -e 'BEGIN{undef $/;}s!<row>\s*(.*?)</row>\s*!$1\n!gsi' $DEST
 
+# NOTE - these are titles left over after all other conversions - basically they need to be bold:
+perl -pi -e 's!<title>(.*?)</title>!\\textbf{$1}!gsi' $DEST
+
 #  After everything else, convert paras
 perl -pi -e 's!<para>!\n\n!gsi' $DEST
+perl -pi -e 's!<para id="(.*)">!\n\n!gsi' $DEST
 perl -pi -e 's!</para>!\n\n!gsi' $DEST
 
 # Clean up excessive spacing after paragraph removal
