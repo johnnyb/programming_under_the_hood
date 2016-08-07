@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# NOTE - the order of operations, especially for the first and last items, really matter
+
 SOURCE=$1
 DEST=$2 
 if [$DEST = ""]; then 
@@ -13,10 +15,9 @@ perl -pi -e 's!\\!\\\\!gsi' $DEST
 perl -pi -e 's!_!\\_!gsi' $DEST
 perl -pi -e 's!\$!\\\$!gsi' $DEST
 perl -pi -e 's!\#!\\\#!gsi' $DEST
-perl -pi -e 's!%!\\%!gsi' $DEST
-
-#  Strip comments
-perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi' $DEST
+perl -pi -e 's!\^!\\textasciicircum!gsi' $DEST
+perl -pi -e 's!&lt;!<!gsi' $DEST
+perl -pi -e 's!&gt;!>!gsi' $DEST
 
 # Convert all &eax; to {\eax}
 REGS=("rax ax ah al eax ebx ecx edx edi esp ebp esi eip cl dl eflags")
@@ -27,7 +28,11 @@ do
 	perl -pi -e "s/%${REG}/{\\\\${REG}Bare}/g;" $DEST
 done
 
+perl -pi -e 's!%!\\%!gsi' $DEST
 perl -pi -e 's!&percent;!\\%!gsi' $DEST
+
+#  Strip comments
+perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi' $DEST
 
 # Convert Code to use BP Code Listing
 perl -pi -e 'BEGIN{undef $/;} s!<programlisting>\s*&(.*?);\s*</programlisting>!\\begin{simpletyping}\n\\lstinputlisting{$1}\n\\end{simpletyping}\n!gsi' $DEST
