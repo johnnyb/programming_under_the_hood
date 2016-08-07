@@ -2,15 +2,110 @@
 
 SOURCE=$1
 DEST=$2 
+if [$DEST = ""]; then 
+DEST=$SOURCE.tex
+SOURCE=$SOURCE.xml
+fi
 
 cp $SOURCE $DEST
 
-# Step 1) Convert all &eax; to {\eax}
+echo $SOURCE
+echo $DEST
+
+#  Strip comments
+perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi' $DEST
+
+# Convert all &eax; to {\eax}
 REGS=("ax ah al eax ebx ecx edx edi esp ebp eip cl dl eflags")
 for REG in $REGS
 do
 	echo $REG
 	perl -pi -e "s/&${REG};/{\\\\${REG}Reg}/g;" $DEST
-	perl -pi -e "s/&${REG};/{\\\\${REG}RegIdx}/g;" $DEST
+	perl -pi -e "s/&${REG}-indexed;/{\\\\${REG}RegIdx}/g;" $DEST
+	perl -pi -e "s/%${REG}/{\\\\${REG}Bare}/g;" $DEST
 done
 
+perl -pi -e 's!&percent;!\\%!gsi' $DEST
+
+# Convert Code to use BP Code Listing
+perl -pi -e 'BEGIN{undef $/;} s!<programlisting>\s*&(.*?);\s*</programlisting>!\\begin{simpletyping}\n\\lstinputlisting{$1}\n\\end{simpletyping}\n!gsi' $DEST
+perl -pi -e 's!\\lstinputlisting{([\w-]+)-s}!"\\lstinputlisting{" . $1 =~ s/-//gr .  ".s}"!gesi' $DEST
+perl -pi -e 'BEGIN{undef $/;}s!<programlisting>(.*?)</programlisting>!\\begin{simpletyping}\n\\begin{lstlisting}$1\\end{lstlisting}\n\\end{simpletyping}\n!gsi' $DEST
+
+# Convert emphasis
+perl -pi -e 'BEGIN{undef $/;} s!<emphasis>(.*?)</emphasis>!\\emph{$1}!gsi' $DEST
+
+# Convert chapter
+perl -pi -e "BEGIN{undef \$/;} s/<chapter id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<chapter>\s*<title>(.*?)<\\/title>/\\\\chapter{\$1}\n/gsi" $DEST
+perl -pi -e 's!</chapter>!!' $DEST
+
+# convert <index>
+perl -pi -e 'BEGIN{undef $/;} s!<indexterm.*?>\s*<primary>\s*(.*?)\s*</primary>\s*</indexterm>!\\index{$1}!gsi' $DEST
+
+# Convert appendix
+perl -pi -e "BEGIN{undef \$/;} s/<appendix id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\chapter{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<appendix>\s*<title>(.*?)<\\/title>/\\\\chapter{\$1}\n/gsi" $DEST
+perl -pi -e 's!</appendix>!!' $DEST
+
+# Convert sect1
+
+perl -pi -e "BEGIN{undef \$/;} s/<sect1 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<sect1>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
+perl -pi -e 's!</sect1>!!gsi' $DEST
+
+# Convert sect2
+perl -pi -e "BEGIN{undef \$/;} s/<sect2 id=[\"'](.*?)[\"']>\s*<title>(.*?)<\\/title>/\\\\section{\$2}\n\\\\label{\$1}\n/gsi" $DEST
+perl -pi -e "BEGIN{undef \$/;} s/<sect2>\s*<title>(.*?)<\\/title>/\\\\section{\$1}\n/gsi" $DEST
+perl -pi -e 's!</sect2>!!gsi' $DEST
+
+#  Convert footnote
+perl -pi -e 'BEGIN{undef $/;} s!<footnote>\s*<para>\s*(.*?)</para>\s*</footnote>!\\footnote{$1}!gsi' $DEST
+
+perl -pi -e 'BEGIN{undef $/;} s!<ulink.*?>(.*?)</ulink>!\\url{$1}!gsi' $DEST
+
+# Conver literal
+perl -pi -e 'BEGIN{undef $/;} s!<literal>(.*?)</literal>!\\icode{$1}!gsi;' $DEST
+
+# Convert command
+perl -pi -e 'BEGIN{undef $/;} s!<command>(.*?)</command>!\\icodecmd{$1}!gsi;' $DEST
+
+# Convert filename
+perl -pi -e 'BEGIN{undef $/;} s!<filename>(.*?)</filename>!\\icodefilename{$1}!gsi;' $DEST
+
+# Convert citetitle
+perl -pi -e 'BEGIN{undef $/;} s!<citetitle>(.*?)</citetitle>!\\documentname{$1}!gsi;' $DEST
+
+# <variablelist>
+perl -pi -e 's!<variablelist>\s*!\\begin{description}!gsi' $DEST
+perl -pi -e 's!</variablelist>!\\end{description}!gsi' $DEST
+perl -pi -e 'BEGIN{undef $/;} s!<varlistentry>\s*<term>(.*?)</term>\s*<listitem>\s*<para>\s*(.*?)\s*</para>\s*</listitem>\s*</varlistentry>\s*!\\item[$1] $2\n!gsi' $DEST
+
+# <orderedlist>
+perl -pi -e 's!<orderedlist>\s*!\\begin{enumerate}!gsi' $DEST
+perl -pi -e 's!</orderedlist>!\\end{enumerate}!gsi' $DEST
+
+# <itemizedlist>
+perl -pi -e 's!<itemizedlist>\s*!\\begin{itemize}!gsi' $DEST
+perl -pi -e 's!</itemizedlist>!\\end{itemize}!gsi' $DEST
+
+# List items
+perl -pi -e 'BEGIN{undef $/;} s!<listitem>\s*<para>\s*(.*?)\s*</para>\s*</listitem>\s*!\\item $1 \n!gsi' $DEST
+
+# Tables
+perl -pi -e 'BEGIN{undef $/;} s!<table>\s*<title>(.*?)</title>.*?<thead>(.*?)\s*</table>!\\begin{table}[h]\n\\begin{tabular}{FIXME}\n$2\n\\end{tabular}\n\\caption{$1}\n\\end{table}\n!gsi' $DEST
+perl -pi -e 's!<thead>\s*!!gsi' $DEST
+perl -pi -e 's!</thead>\s*!!gsi' $DEST
+perl -pi -e 's!<tbody>\s*!!gsi' $DEST
+perl -pi -e 's!</tbody>\s*!!gsi' $DEST
+perl -pi -e 's!<tgroup>\s*!!gsi' $DEST
+perl -pi -e 's!</tgroup>\s*!!gsi' $DEST
+perl -pi -e 'BEGIN{undef $/;}s!\s*<entry>\s*(.*?)\s*</entry>\s*!$1 & !gsi' $DEST
+perl -pi -e 'BEGIN{undef $/;}s!<row>\s*(.*?)</row>\s*!$1\n!gsi' $DEST
+
+#  After everything else, convert paras
+perl -pi -e 's!<para>!\n\n!gsi' $DEST
+perl -pi -e 's!</para>!\n\n!gsi' $DEST
+
+# Clean up excessive spacing after paragraph removal
+perl -pi -e 'BEGIN{undef $/;} s!\n\n\n+!\n\n!gsi' $DEST
