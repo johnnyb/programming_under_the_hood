@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for FILE in `ls *.xml|grep -v ProgrammingGroundUp.xml|cut -f . -d 1`
+do
+	./convert $FILE
+done
