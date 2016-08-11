@@ -27,25 +27,22 @@ return values and error codes are also stored in {\eaxReg}.
 \index{\%edx}
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
-
-{\eaxReg} & Name & {\ebxReg} & {\ecxReg} & {\edxReg} & Notes & 
-1 & exit\index{exit} & return value (int) &  &  & Exits the program & 
-3 & read\index{read} & file descriptor & buffer start & buffer size (int) & Reads into the given buffer & 
-4 & write\index{write} & file descriptor & buffer start & buffer size (int) & Writes the buffer to the file descriptor & 
-5 & open\index{open} & null-terminated file name & option list & permission mode & Opens the given file.  Returns the file descriptor or an error number. & 
-6 & close\index{close} & file descriptor &  &  & Closes the give file descriptor & 
-12 & chdir\index{chdir} & null-terminated directory name &  &  & Changes the current directory of your program. & 
-19 & lseek\index{lseek} & file descriptor & offset & mode & Repositions where you are in the given file.  The mode (called the "whence") should be 0 for absolute positioning, and 1 for relative positioning. & 
-20 & getpid\index{getpid} &  &  &  & Returns the process ID of the current process. & 
-39 & mkdir\index{mkdir} & null-terminated directory name & permission mode &  & Creates the given directory.  Assumes all directories leading up to it already exist. & 
-40 & rmdir\index{rmdir} & null-terminated directory name &  &  & Removes the given directory. & 
-41 & dup\index{dup} & file descriptor &  &  & Returns a new file descriptor that works just like the existing file descriptor. & 
-42 & pipe\index{pipe} & pipe array &  &  & Creates two file descriptors, where writing on one produces data to read on the other and vice-versa.  {\ebxRegIdx} is a pointer to two words of storage to hold the file descriptors. & 
-45 & brk\index{brk} & new system break &  &  & Sets the system break (i.e. - the end of the data section).  If the system break is 0, it simply returns the current system break. & 
-54 & ioctl\index{ioctl} & file descriptor & request & arguments & This is used to set parameters on device files.  Its actual usage varies based on the type of file or device your descriptor references. & 
-% 
-% % & % & % & % & % & % & % 
+\begin{tabular}{l | l | l | l | l | l}
+{\eaxReg} & Name & {\ebxReg} & {\ecxReg} & {\edxReg} & Notes \\
+1 & exit\index{exit} & return value (int) &  &  & Exits the program \\
+3 & read\index{read} & file descriptor & buffer start & buffer size (int) & Reads into the given buffer \\
+4 & write\index{write} & file descriptor & buffer start & buffer size (int) & Writes the buffer to the file descriptor \\ 
+5 & open\index{open} & null-terminated file name & option list & permission mode & Opens the given file.  Returns the file descriptor or an error number. \\
+6 & close\index{close} & file descriptor &  &  & Closes the give file descriptor \\
+12 & chdir\index{chdir} & null-terminated directory name &  &  & Changes the current directory of your program. \\
+19 & lseek\index{lseek} & file descriptor & offset & mode & Repositions where you are in the given file.  The mode (called the "whence") should be 0 for absolute positioning, and 1 for relative positioning. \\
+20 & getpid\index{getpid} &  &  &  & Returns the process ID of the current process. \\
+39 & mkdir\index{mkdir} & null-terminated directory name & permission mode &  & Creates the given directory.  Assumes all directories leading up to it already exist. \\
+40 & rmdir\index{rmdir} & null-terminated directory name &  &  & Removes the given directory. \\
+41 & dup\index{dup} & file descriptor &  &  & Returns a new file descriptor that works just like the existing file descriptor. \\
+42 & pipe\index{pipe} & pipe array &  &  & Creates two file descriptors, where writing on one produces data to read on the other and vice-versa.  {\ebxRegIdx} is a pointer to two words of storage to hold the file descriptors. \\
+45 & brk\index{brk} & new system break &  &  & Sets the system break (i.e. - the end of the data section).  If the system break is 0, it simply returns the current system break. \\
+54 & ioctl\index{ioctl} & file descriptor & request & arguments & This is used to set parameters on device files.  Its actual usage varies based on the type of file or device your descriptor references. \\
 \end{tabular}
 \caption{Important Linux System Calls}
 \end{table}

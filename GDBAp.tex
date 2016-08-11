@@ -261,50 +261,50 @@ This quick-reference table is copyright 2002 Robert M. Dondero, Jr., and is used
 permission in this book.  Parameters listed in brackets are optional.
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l}
 
-Miscellaneous & 
-quit\index{quit} & Exit GDB & 
-help\index{help} [cmd] & Print description of debugger command \icode{cmd}.  Without \icode{cmd}, prints a list of topics. & 
-directory\index{directory} [dir1] [dir2] ... & Add directories \icode{dir1}, \icode{dir2}, etc. to the list of directories searched for source files. & 
-Running the Program & 
-run\index{run} [arg1] [arg2] ... & Run the program with command line arguments \icode{arg1}, \icode{arg2}, etc. & 
-set\index{set} args arg1 [arg2] ... & Set the program's command-line arguments to \icode{arg1}, \icode{arg2}, etc. & 
-show\index{show} args & Print the program's command-line arguments. & 
-Using Breakpoints & 
-info\index{info} breakpoints & Print a list of all breakpoints and their numbers (breakpoint numbers are used for other breakpoint commands). & 
-break\index{break} \emph{linenum} & Set a breakpoint at line number \emph{linenum}. & 
-break *\emph{addr} & Set a breakpoint at memory address \emph{addr}. & 
-break \emph{fn} & Set a breakpoint at the beginning of function \emph{fn}. & 
-condition\index{condition} \emph{bpnum} \emph{expr} & Break at breakpoint \emph{bpnum} only if expression \emph{expr} is non-zero. & 
-command\index{command} [\emph{bpnum}] \emph{cmd1} [\emph{cmd2}] ... & Execute commands \emph{cmd1}, \emph{cmd2}, etc. whenever breakpoint \emph{bpnum} (or the current breakpoint) is hit. & 
-continue\index{continue} & Continue executing the program. & 
-kill\index{kill} & Stop executing the program. & 
-delete\index{delete} [\emph{bpnum1}] [\emph{bpnum2}] ... & Delete breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. & 
-clear\index{clear} *\emph{addr} & Clear the breakpoint at memory address \emph{addr}. & 
-clear [\emph{fn}] & Clear the breakpoint at function \emph{fn}, or the current breakpoint. & 
-clear \emph{linenum} & Clear the breakpoint at line number \emph{linenum}. & 
-disable\index{disable} [\emph{bpnum1}] [\emph{bpnum2}] ... & Disable breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. & 
-enable\index{enable} [\emph{bpnum1}] [\emph{bpnum2}] ... & Enable breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. & 
-Stepping through the Program & 
-nexti\index{nexti} & "Step over" the next instruction (doesn't follow function calls). & 
-stepi\index{stepi} & "Step into" the next instruction (follows function calls). & 
-finish\index{finish} & "Step out" of the current function. & 
-Examining Registers and Memory & 
-info registers\index{info registers} & Print the contents of all registers. & 
-print\index{print}/\emph{f} \$\emph{reg} & Print the contents of register \emph{reg} using format \emph{f}.  The format can be x (hexadecimal), u (unsigned decimal), o (octal), a(address), c (character), or f (floating point). & 
-x\index{x}/\emph{rsf} \emph{addr} & Print the contents of memory address \emph{addr} using repeat count \emph{r}, size \emph{s}, and format \emph{f}.  Repeat count defaults to 1 if not specified.  Size can be b (byte), h (halfword), w (word), or g (double word).  Size defaults to word if not specified.  Format is the same as for print, with the additions of s (string) and i (instruction). & 
-info display\index{info display} & Shows a numbered list of expressions set up to display automatically at each break. & 
-display\index{display}/\emph{f} \$\emph{reg} & At each break, print the contents of register \emph{reg} using format \emph{f}. & 
-display/\emph{s}i addr & At each break, print the contents of memory address \emph{addr} using size \emph{s} (same options as for the x command). & 
-display/\emph{s}s addr & At each break, print the string of size \emph{s} that begins in memory address \emph{addr}. & 
-undisplay\index{undisplay} \emph{displaynum} & Remove \emph{displaynum} from the display list. & 
-Examining the Call Stack & 
-where\index{where} & Print the call stack. & 
-backtrace\index{backtrace} & Print the call stack. & 
-frame\index{frame} & Print the top of the call stack. & 
-up\index{up} & Move the context toward the bottom of the call stack. & 
-down\index{down} & Move the context toward the top of the call stack. & 
+Miscellaneous \\
+quit\index{quit} & Exit GDB \\
+help\index{help} [cmd] & Print description of debugger command \icode{cmd}.  Without \icode{cmd}, prints a list of topics. \\
+directory\index{directory} [dir1] [dir2] ... & Add directories \icode{dir1}, \icode{dir2}, etc. to the list of directories searched for source files. \\
+Running the Program \\
+run\index{run} [arg1] [arg2] ... & Run the program with command line arguments \icode{arg1}, \icode{arg2}, etc. \\
+set\index{set} args arg1 [arg2] ... & Set the program's command-line arguments to \icode{arg1}, \icode{arg2}, etc. \\
+show\index{show} args & Print the program's command-line arguments. \\
+Using Breakpoints \\
+info\index{info} breakpoints & Print a list of all breakpoints and their numbers (breakpoint numbers are used for other breakpoint commands). \\
+break\index{break} \emph{linenum} & Set a breakpoint at line number \emph{linenum}. \\
+break *\emph{addr} & Set a breakpoint at memory address \emph{addr}. \\
+break \emph{fn} & Set a breakpoint at the beginning of function \emph{fn}. \\
+condition\index{condition} \emph{bpnum} \emph{expr} & Break at breakpoint \emph{bpnum} only if expression \emph{expr} is non-zero. \\
+command\index{command} [\emph{bpnum}] \emph{cmd1} [\emph{cmd2}] ... & Execute commands \emph{cmd1}, \emph{cmd2}, etc. whenever breakpoint \emph{bpnum} (or the current breakpoint) is hit. \\
+continue\index{continue} & Continue executing the program. \\
+kill\index{kill} & Stop executing the program. \\
+delete\index{delete} [\emph{bpnum1}] [\emph{bpnum2}] ... & Delete breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. \\
+clear\index{clear} *\emph{addr} & Clear the breakpoint at memory address \emph{addr}. \\
+clear [\emph{fn}] & Clear the breakpoint at function \emph{fn}, or the current breakpoint. \\
+clear \emph{linenum} & Clear the breakpoint at line number \emph{linenum}. \\
+disable\index{disable} [\emph{bpnum1}] [\emph{bpnum2}] ... & Disable breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. \\
+enable\index{enable} [\emph{bpnum1}] [\emph{bpnum2}] ... & Enable breakpoints \emph{bpnum1}, \emph{bpnum2}, etc., or all breakpoints if none specified. \\
+Stepping through the Program \\
+nexti\index{nexti} & "Step over" the next instruction (doesn't follow function calls). \\
+stepi\index{stepi} & "Step into" the next instruction (follows function calls). \\
+finish\index{finish} & "Step out" of the current function. \\
+Examining Registers and Memory \\
+info registers\index{info registers} & Print the contents of all registers. \\
+print\index{print}/\emph{f} \$\emph{reg} & Print the contents of register \emph{reg} using format \emph{f}.  The format can be x (hexadecimal), u (unsigned decimal), o (octal), a(address), c (character), or f (floating point). \\
+x\index{x}/\emph{rsf} \emph{addr} & Print the contents of memory address \emph{addr} using repeat count \emph{r}, size \emph{s}, and format \emph{f}.  Repeat count defaults to 1 if not specified.  Size can be b (byte), h (halfword), w (word), or g (double word).  Size defaults to word if not specified.  Format is the same as for print, with the additions of s (string) and i (instruction). \\
+info display\index{info display} & Shows a numbered list of expressions set up to display automatically at each break. \\
+display\index{display}/\emph{f} \$\emph{reg} & At each break, print the contents of register \emph{reg} using format \emph{f}. \\
+display/\emph{s}i addr & At each break, print the contents of memory address \emph{addr} using size \emph{s} (same options as for the x command). \\
+display/\emph{s}s addr & At each break, print the string of size \emph{s} that begins in memory address \emph{addr}. \\
+undisplay\index{undisplay} \emph{displaynum} & Remove \emph{displaynum} from the display list. \\
+Examining the Call Stack \\
+where\index{where} & Print the call stack. \\
+backtrace\index{backtrace} & Print the call stack. \\
+frame\index{frame} & Print the top of the call stack. \\
+up\index{up} & Move the context toward the bottom of the call stack. \\
+down\index{down} & Move the context toward the top of the call stack. \\
 \end{tabular}
 \caption{Common GDB Debugging Commands}
 \end{table}

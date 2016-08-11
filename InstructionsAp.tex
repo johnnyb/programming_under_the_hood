@@ -45,27 +45,15 @@ Other flags exist, but they are much less important.
 These instructions perform little, if any computation.  Instead they are mostly used for moving data from one place to another.
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l | l | l}
 
-Instruction & Operands & Affected Flags & 
-movl\index{movl} & I/R/M, I/R/M & O/S/Z/A/C & 
-This copies a word of data from one location to another.  \icode{movl {\eaxBare}, {\ebxBare}} copies the contents of {\eaxReg} to {\ebxReg} & 
-movb\index{movb} & I/R/M, I/R/M & O/S/Z/A/C & 
-Same as \icode{movl}, but operates on individual bytes. & 
-leal\index{leal} & M, I/R/M & O/S/Z/A/C & 
-This takes a memory location given in the standard format, and, instead of
-loading the contents of the memory location, loads the computed address.
-For example, \icode{leal 5({\ebpBare},{\ecxBare},1), {\eaxBare}} loads the address
-computed by \icode{5 + {\ebpBare} + 1*{\ecxBare}} and stores that in {\eaxReg} & 
-popl\index{popl} & R/M & O/S/Z/A/C & 
-Pops the top of the stack into the given location.  This is equivalent to performing \icode{movl ({\espBare}), R/M} followed by \icode{addl \$4, {\espBare}}.
-\icode{popfl} is a variant which pops the top of the stack into the {\eflagsReg}\index{\%eflags} register. & 
-pushl\index{pushl} & I/R/M & O/S/Z/A/C & 
-Pushes the given value onto the stack.
-This is the equivalent to performing \icode{subl \$4, {\espBare}} followed by \icode{movl I/R/M, ({\espBare})}.
-\icode{pushfl} is a variant which pushes the current contents of the {\eflagsReg}\index{\%eflags} register onto the top of the stack. & 
-xchgl\index{xchgl} & R/M, R/M & O/S/Z/A/C & 
-Exchange the values of the given operands. & 
+Instruction & Operands & Affected Flags \\
+movl\index{movl} & I/R/M, I/R/M & O/S/Z/A/C & This copies a word of data from one location to another.  \icode{movl {\eaxBare}, {\ebxBare}} copies the contents of {\eaxReg} to {\ebxReg} \\
+movb\index{movb} & I/R/M, I/R/M & O/S/Z/A/C & Same as \icode{movl}, but operates on individual bytes. \\
+leal\index{leal} & M, I/R/M & O/S/Z/A/C & This takes a memory location given in the standard format, and, instead of loading the contents of the memory location, loads the computed address.  For example, \icode{leal 5({\ebpBare},{\ecxBare},1), {\eaxBare}} loads the address computed by \icode{5 + {\ebpBare} + 1*{\ecxBare}} and stores that in {\eaxReg} \\
+popl\index{popl} & R/M & O/S/Z/A/C & Pops the top of the stack into the given location.  This is equivalent to performing \icode{movl ({\espBare}), R/M} followed by \icode{addl \$4, {\espBare}}.  \icode{popfl} is a variant which pops the top of the stack into the {\eflagsReg}\index{\%eflags} register. \\
+pushl\index{pushl} & I/R/M & O/S/Z/A/C & Pushes the given value onto the stack.  This is the equivalent to performing \icode{subl \$4, {\espBare}} followed by \icode{movl I/R/M, ({\espBare})}. \icode{pushfl} is a variant which pushes the current contents of the {\eflagsRegIdx} register onto the top of the stack. \\
+xchgl\index{xchgl} & R/M, R/M & O/S/Z/A/C Exchange the values of the given operands. \\
 \end{tabular}
 \caption{Data Transfer Instructions}
 \end{table}
@@ -77,42 +65,23 @@ These are basic calculating instructions that operate on signed or unsigned
 integers.
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l | l | l}
 
-Instruction & Operands & Affected Flags & 
-adcl\index{adcl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Add with carry.  Adds the carry bit and the first operand to the second, and, if there is an overflow, sets overflow and carry to true.  This is usually used for operations larger than a machine word.  The addition on the least-significant word would take place using \icode{addl}, while additions to the other words would used the \icode{adcl} instruction to take the carry from the previous add into account.  For the usual case, this is not used, and \icode{addl} is used instead. & 
-addl\index{addl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Addition.  Adds the first operand to the second, storing the result in the second.  If the result is larger than the destination register, the overflow and carry bits are set to true.  This instruction operates on both signed and unsigned integers. & 
-cdq\index{cdq} &  & O/S/Z/A/P/C & 
-Converts the \index{{\eaxReg}}\index{{\edxReg}}{\eaxReg} word into the double-word consisting of {\edxReg}:{\eaxReg} with sign extension.  The \icode{q} signifies that it is a \emph{quad-word}.  It's actually a double-word, but it's called a quad-word because of the terminology used in the 16-bit days.  This is usually used before issuing an \icode{idivl} instruction. & 
-cmpl\index{cmpl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Compares two integers.  It does this by subtracting the first operand from the second.  It discards the results, but sets the flags accordingly.  Usually used before a conditional jump. & 
-decl\index{decl} & R/M & O/S/Z/A/P & 
-Decrements the register or memory location.  Use \icode{decb}
-to decrement a byte instead of a word. & 
-divl\index{divl} & R/M & O/S/Z/A/P & 
-Performs unsigned division.  Divides the contents of the double-word contained in the combined {\edxReg}:{\eaxRegIdx} registers by the value in the register or memory location specified.  The {\eaxReg} register contains the resulting 
-quotient, and the {\edxReg} register contains the resulting remainder.  If the 
-quotient is too large to fit in {\eaxReg}, it triggers a type 0 interrupt. & 
-idivl\index{idivl} & R/M & O/S/Z/A/P & 
-Performs signed division.  Operates just like \icode{divl} above. & 
-imull\index{imull} & R/M/I, R & O/S/Z/A/P/C & 
-Performs signed multiplication and stores the result in the second operand.
-If the second operand is left out, it is assumed to be {\eaxReg}, and the full
-result is stored in the double-word {\edxRegIdx}:{\eaxRegIdx}. & 
-incl\index{incl} & R/M & O/S/Z/A/P & 
-Increments the given register or memory location.  Use \icode{incb} to increment a byte instead of a word. & 
-mull\index{mull} & R/M/I, R & O/S/Z/A/P/C & 
-Perform unsigned multiplication.  Same rules as apply to \icode{imull}. & 
-negl\index{negl} & R/M & O/S/Z/A/P/C & 
-Negates (gives the two's complement\index{two's complement} inversion of) the given register or memory location. & 
-sbbl\index{sbbl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Subtract with borrowing.  This is used in the same way that \icode{adc} is, except for subtraction.  Normally only \icode{subl} is used. & 
-subl\index{subl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Subtract the two operands.  This subtracts the first operand from the second,
-and stores the result in the second operand.  This instruction can be used on
-both signed and unsigned numbers. & 
+Instruction & Operands & Affected Flags \\
+adcl\index{adcl} & I/R/M, R/M & O/S/Z/A/P/C & Add with carry.  Adds the carry bit and the first operand to the second, and, if there is an overflow, sets overflow and carry to true.  This is usually used for operations larger than a machine word.  The addition on the least-significant word would take place using \icode{addl}, while additions to the other words would used the \icode{adcl} instruction to take the carry from the previous add into account.  For the usual case, this is not used, and \icode{addl} is used instead. \\
+addl\index{addl} & I/R/M, R/M & O/S/Z/A/P/C & Addition.  Adds the first operand to the second, storing the result in the second.  If the result is larger than the destination register, the overflow and carry bits are set to true.  This instruction operates on both signed and unsigned integers. \\
+cdq\index{cdq} &  & O/S/Z/A/P/C & Converts the \index{{\eaxReg}}\index{{\edxReg}}{\eaxReg} word into the double-word consisting of {\edxReg}:{\eaxReg} with sign extension.  The \icode{q} signifies that it is a \emph{quad-word}.  It's actually a double-word, but it's called a quad-word because of the terminology used in the 16-bit days.  This is usually used before issuing an \icode{idivl} instruction. \\
+cmpl\index{cmpl} & I/R/M, R/M & O/S/Z/A/P/C & Compares two integers.  It does this by subtracting the first operand from the second.  It discards the results, but sets the flags accordingly.  Usually used before a conditional jump. \\
+decl\index{decl} & R/M & O/S/Z/A/P & Decrements the register or memory location.  Use \icode{decb} to decrement a byte instead of a word. \\
+divl\index{divl} & R/M & O/S/Z/A/P & Performs unsigned division.  Divides the contents of the double-word contained in the combined {\edxReg}:{\eaxRegIdx} registers by the value in the register or memory location specified.  The {\eaxReg} register contains the resulting quotient, and the {\edxReg} register contains the resulting remainder.  If the 
+quotient is too large to fit in {\eaxReg}, it triggers a type 0 interrupt. \\
+idivl\index{idivl} & R/M & O/S/Z/A/P & Performs signed division.  Operates just like \icode{divl} above. \\
+imull\index{imull} & R/M/I, R & O/S/Z/A/P/C & Performs signed multiplication and stores the result in the second operand.  If the second operand is left out, it is assumed to be {\eaxReg}, and the full result is stored in the double-word {\edxRegIdx}:{\eaxRegIdx}. \\
+incl\index{incl} & R/M & O/S/Z/A/P & Increments the given register or memory location.  Use \icode{incb} to increment a byte instead of a word. \\
+mull\index{mull} & R/M/I, R & O/S/Z/A/P/C & Perform unsigned multiplication.  Same rules as apply to \icode{imull}. \\
+negl\index{negl} & R/M & O/S/Z/A/P/C & Negates (gives the two's complement\index{two's complement} inversion of) the given register or memory location. \\
+sbbl\index{sbbl} & I/R/M, R/M & O/S/Z/A/P/C & Subtract with borrowing.  This is used in the same way that \icode{adc} is, except for subtraction.  Normally only \icode{subl} is used. \\
+subl\index{subl} & I/R/M, R/M & O/S/Z/A/P/C & Subtract the two operands.  This subtracts the first operand from the second, and stores the result in the second operand.  This instruction can be used on both signed and unsigned numbers. \\
 \end{tabular}
 \caption{Integer Instructions}
 \end{table}
@@ -123,45 +92,22 @@ both signed and unsigned numbers. &
 These instructions operate on memory as bits instead of words.
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l | l | l}
 
-Instruction & Operands & Affected Flags & 
-andl\index{andl} & I/R/M, R/M & O/S/Z/P/C & 
-Performs a logical and of the contents of the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. & 
-notl\index{notl} & R/M &  & 
-Performs a logical not on each bit in the operand.  Also known as a 
-one's complement\index{one's complement}. & 
-orl\index{orl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Performs a logical or between the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. & 
-rcll\index{rcll} & I/{\clReg}, R/M & O/C & 
-Rotates the given location's bits to the left the number of times in the first operand, which is either an immediate-mode value or the register {\clReg}.  The carry flag is included in the rotation, making it use 33 bits instead of 32.  Also sets the overflow flag. & 
-rcrl\index{rcrl} & I/{\clReg}, R/M & O/C & 
-Same as above, but rotates right. & 
-roll\index{roll} & I/{\clReg}, R/M & O/C & 
-Rotate bits to the left.  It sets the overflow and carry flags, but does not count the carry flag as part of the rotation.  The number of bits to roll is
-either specified in immediate mode or is contained in the {\clReg} register. & 
-rorl\index{rorl} & I/{\clReg}, R/M & O/C & 
-Same as above, but rotates right. & 
-sall\index{sall} & I/{\clReg}, R/M & C & 
-Arithmetic shift left.  The sign bit is shifted out to the carry flag, and a zero bit is placed in the least significant bit.  Other bits are simply shifted to the left.  This is the same as the regular shift left.  The number of bits
-to shift is either specified in immediate mode or is contained in the {\clReg}
-register. & 
-sarl\index{sarl} & I/{\clReg}, R/M & C & 
-Arithmetic shift right.  The least significant bit is shifted out to the carry flag.  The sign bit is shifted in, and kept as the sign bit.  Other bits are simply shifted to the right.  The number of bits
-to shift is either specified in immediate mode or is contained in the {\clReg}
-register. & 
-shll\index{shll} & I/{\clReg}, R/M & C & 
-Logical shift left.  This shifts all bits to the left (sign bit is not treated specially).  The leftmost bit is pushed to the carry flag.  The number of bits
-to shift is either specified in immediate mode or is contained in the {\clReg}
-register. & 
-shrl\index{shrl} & I/{\clReg}, R/M & C & 
-Logical shift right.  This shifts all bits in the register to the right (sign bit is not treated specially).  The rightmost bit is pushed to the carry flag.  The number of bits
-to shift is either specified in immediate mode or is contained in the {\clReg}
-register. & 
-testl\index{testl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Does a logical and of both operands and discards the results, but sets the flags accordingly. & 
-xorl\index{xorl} & I/R/M, R/M & O/S/Z/A/P/C & 
-Does an exclusive or on the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. & 
+Instruction & Operands & Affected Flags \\
+andl\index{andl} & I/R/M, R/M & O/S/Z/P/C & Performs a logical and of the contents of the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. \\
+notl\index{notl} & R/M &  & Performs a logical not on each bit in the operand.  Also known as a one's complement\index{one's complement}. \\
+orl\index{orl} & I/R/M, R/M & O/S/Z/A/P/C & Performs a logical or between the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. \\
+rcll\index{rcll} & I/{\clReg}, R/M & O/C & Rotates the given location's bits to the left the number of times in the first operand, which is either an immediate-mode value or the register {\clReg}.  The carry flag is included in the rotation, making it use 33 bits instead of 32.  Also sets the overflow flag. \\
+rcrl\index{rcrl} & I/{\clReg}, R/M & O/C & Same as above, but rotates right. \\
+roll\index{roll} & I/{\clReg}, R/M & O/C & Rotate bits to the left.  It sets the overflow and carry flags, but does not count the carry flag as part of the rotation.  The number of bits to roll is either specified in immediate mode or is contained in the {\clReg} register. \\
+rorl\index{rorl} & I/{\clReg}, R/M & O/C & Same as above, but rotates right. \\
+sall\index{sall} & I/{\clReg}, R/M & C & Arithmetic shift left.  The sign bit is shifted out to the carry flag, and a zero bit is placed in the least significant bit.  Other bits are simply shifted to the left.  This is the same as the regular shift left.  The number of bits to shift is either specified in immediate mode or is contained in the {\clReg} register. \\
+sarl\index{sarl} & I/{\clReg}, R/M & C & Arithmetic shift right.  The least significant bit is shifted out to the carry flag.  The sign bit is shifted in, and kept as the sign bit.  Other bits are simply shifted to the right.  The number of bits to shift is either specified in immediate mode or is contained in the {\clReg} register. \\
+shll\index{shll} & I/{\clReg}, R/M & C & Logical shift left.  This shifts all bits to the left (sign bit is not treated specially).  The leftmost bit is pushed to the carry flag.  The number of bits to shift is either specified in immediate mode or is contained in the {\clReg} register. \\
+shrl\index{shrl} & I/{\clReg}, R/M & C & Logical shift right.  This shifts all bits in the register to the right (sign bit is not treated specially).  The rightmost bit is pushed to the carry flag.  The number of bits to shift is either specified in immediate mode or is contained in the {\clReg} register. \\
+testl\index{testl} & I/R/M, R/M & O/S/Z/A/P/C & Does a logical and of both operands and discards the results, but sets the flags accordingly. \\
+xorl\index{xorl} & I/R/M, R/M & O/S/Z/A/P/C & Does an exclusive or on the two operands, and stores the result in the second operand.  Sets the overflow and carry flags to false. \\
 \end{tabular}
 \caption{Logic Instructions}
 \end{table}
@@ -172,21 +118,14 @@ Does an exclusive or on the two operands, and stores the result in the second op
 These instructions may alter the flow of the program.
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l | l | p{2in}}
 
-Instruction & Operands & Affected Flags & 
-call\index{call} & destination address & O/S/Z/A/C & 
-This pushes what would be the next value for {\eipReg} onto the stack, and jumps
-to the destination address.  Used for function calls.
-Alternatively, the destination address can be an asterisk followed by a register for an indirect function call.  For example, \icode{call *{\eaxBare}} will call the function at the address in {\eaxReg}. & 
-int\index{int} & I & O/S/Z/A/C & 
-Causes an interrupt of the given number.  This is usually used
-for system calls and other kernel interfaces. & 
-Jcc\index{Jcc} & destination address & O/S/Z/A/C & 
-
-Conditional branch.  \icode{cc} is the \emph{condition code}.  Jumps to the given address if the condition code is true (set from the previous instruction, probably a comparison).  Otherwise, goes to the next instruction.  The condition codes are:
-
-\begin{itemize}\item \icode{[n]a[e]} - above (unsigned greater than).  An \icode{n} can be added for "not" and an \icode{e} can be added for "or equal to" 
+Instruction & Operands & Affected Flags \\
+call\index{call} & destination address & O/S/Z/A/C & This pushes what would be the next value for {\eipReg} onto the stack, and jumps to the destination address.  Used for function calls.  Alternatively, the destination address can be an asterisk followed by a register for an indirect function call.  For example, \icode{call *{\eaxBare}} will call the function at the address in {\eaxReg}. \\
+int\index{int} & I & O/S/Z/A/C & Causes an interrupt of the given number.  This is usually used for system calls and other kernel interfaces. \\
+Jcc\index{Jcc} & destination address & O/S/Z/A/C & Conditional branch.  \icode{cc} is the \emph{condition code}.  Jumps to the given address if the condition code is true (set from the previous instruction, probably a comparison).  Otherwise, goes to the next instruction.  The condition codes are: 
+\begin{itemize}
+\item \icode{[n]a[e]} - above (unsigned greater than).  An \icode{n} can be added for "not" and an \icode{e} can be added for "or equal to" 
 \item \icode{[n]b[e]} - below (unsigned less than) 
 \item \icode{[n]e} - equal to 
 \item \icode{[n]z} - zero 
@@ -197,30 +136,12 @@ Conditional branch.  \icode{cc} is the \emph{condition code}.  Jumps to the give
 \item \icode{[p]p} - parity flag set 
 \item \icode{[n]s} - sign flag set 
 \item \icode{ecxz} - {\ecxReg}\index{\%ecx} is zero 
-\end{itemize} & 
-jmp\index{jmp} & destination address & O/S/Z/A/C & 
-An unconditional jump.  This simply sets {\eipReg} to the destination address.  Alternatively, the destination address can be an asterisk followed by a register for an indirect jump.  For example, \icode{jmp *{\eaxBare}} will jump to the address in {\eaxReg}. & 
-ret\index{ret} &  & O/S/Z/A/C & 
-Pops a value off of the stack and then sets {\eipReg} to that value.  Used
-to return from function calls. & 
+\end{itemize} \\
+jmp\index{jmp} & destination address & O/S/Z/A/C & An unconditional jump.  This simply sets {\eipReg} to the destination address.  Alternatively, the destination address can be an asterisk followed by a register for an indirect jump.  For example, \icode{jmp *{\eaxBare}} will jump to the address in {\eaxReg}. \\
+ret\index{ret} &  & O/S/Z/A/C & Pops a value off of the stack and then sets {\eipReg} to that value.  Used to return from function calls. \\
 \end{tabular}
 \caption{Flow Control Instructions}
 \end{table}
-
-% 
-% <sect1>
-% \textbf{Floating-Point Instructions}
-% 
-% <table>
-% \textbf{Floating-Point Instructions}
-% % % % % % %Instruction & Operands & Affected Flags & 
-% % % % % </table>
-% 
-
-% 
-
-% 
-% 
 
 \section{Assembler Directives}
 \label{dirins}
@@ -230,44 +151,20 @@ to the processor.  These are used to help the assembler put your code together
 properly, and make it easier to use.  
 
 \begin{table}[h]
-\begin{tabular}{FIXME}
+\begin{tabular}{l | l | l}
 
-Directive & Operands &  & 
-.ascii\index{.ascii} & QUOTED STRING & 
-Takes the given quoted string and converts it into byte data. & 
-.byte\index{.byte} & VALUES & 
-Takes a comma-separated list of values and inserts them right there
-in the program as data. & 
-.endr\index{.endr} &  & 
-Ends a repeating section defined with \icode{.rept}. & 
-.equ\index{.equ} & LABEL, VALUE & 
-Sets the given label equivalent to the given value.  The value
-can be a number, a character, or an constant expression that evaluates
-to a a number or character.  From that point on, use of the label will
-be substituted for the given value. & 
-.globl\index{.globl} & LABEL & 
-Sets the given label as global, meaning that it can be used from 
-separately-compiled object files. & 
-.include\index{.include} & FILE & 
-Includes the given file just as if it were typed in right there. & 
-.lcomm\index{.lcomm} & SYMBOL, SIZE & 
-This is used in the \icode{.bss} section to specify storage
-that should be allocated when the program is executed.  Defines the symbol
-with the address where the storage will be located, and makes sure that
-it is the given number of bytes long. & 
-.long\index{.long} & VALUES & 
-Takes a sequence of numbers separated by commas, and inserts those
-numbers as 4-byte words right where they are in the program. & 
-.rept\index{.rept} & COUNT & 
-Repeats everything between this directive and the \icode{.endr}
-directives the number of times specified. & 
-.section\index{.section} & SECTION NAME & 
-Switches the section that is being worked on.  Common sections include
-\icode{.text} (for code), \icode{.data} (for 
-data embedded in the program itself), and \icode{.bss} (for
-uninitialized global data). & 
-.type\index{.type} & SYMBOL, @function & 
-Tells the linker that the given symbol is a function. & 
+Directive & Operands \\
+.ascii\index{.ascii} & QUOTED STRING & Takes the given quoted string and converts it into byte data. \\
+.byte\index{.byte} & VALUES & Takes a comma-separated list of values and inserts them right there in the program as data. \\
+.endr\index{.endr} &  & Ends a repeating section defined with \icode{.rept}. \\
+.equ\index{.equ} & LABEL, VALUE & Sets the given label equivalent to the given value.  The value can be a number, a character, or an constant expression that evaluates to a a number or character.  From that point on, use of the label will be substituted for the given value. \\
+.globl\index{.globl} & LABEL & Sets the given label as global, meaning that it can be used from separately-compiled object files. \\
+.include\index{.include} & FILE & Includes the given file just as if it were typed in right there. \\
+.lcomm\index{.lcomm} & SYMBOL, SIZE & This is used in the \icode{.bss} section to specify storage that should be allocated when the program is executed.  Defines the symbol with the address where the storage will be located, and makes sure that it is the given number of bytes long. \\
+.long\index{.long} & VALUES & Takes a sequence of numbers separated by commas, and inserts those numbers as 4-byte words right where they are in the program. \\
+.rept\index{.rept} & COUNT & Repeats everything between this directive and the \icode{.endr} directives the number of times specified. \\
+.section\index{.section} & SECTION NAME & Switches the section that is being worked on.  Common sections include \icode{.text} (for code), \icode{.data} (for data embedded in the program itself), and \icode{.bss} (for uninitialized global data). \\
+.type\index{.type} & SYMBOL, @function & Tells the linker that the given symbol is a function. \\
 \end{tabular}
 \caption{Assembler Directives}
 \end{table}
@@ -275,7 +172,7 @@ Tells the linker that the given symbol is a function. &
 \section{Differences in Other Syntaxes and Terminology}
 
 The syntax for assembly language used in this book is known at the
-\emph{AT&amp;T\index{AT&amp;T syntax}} syntax.  It is the one supported by the 
+\emph{AT\&T syntax}\index{AT\&T syntax}.  It is the one supported by the 
 GNU tool chain that comes standard with every Linux distribution.  However,
 the official syntax for x86 assembly language (known as the Intel\textregistered syntax\index{Intel syntax})
 is different.  It is
@@ -308,7 +205,7 @@ mov  [8 + {\ebxBare} + 1 * edi], eax
 \end{lstlisting}
 \end{simpletyping}
 
-The memory reference is a bit easier to read than its AT&amp;T counterpart
+The memory reference is a bit easier to read than its AT\&T counterpart
 because it spells out exactly how the address
 will be computed.  However, but the order of operands in Intel syntax can be 
 confusing.
@@ -317,7 +214,7 @@ confusing.
 
 Intel has a set of comprehensive guides to their processors.  These
 are available at http://www.intel.com/design/pentium/manuals/  Note that
-all of these use the Intel syntax, not the AT&amp;T syntax.  The most important
+all of these use the Intel syntax, not the AT\&T syntax.  The most important
 ones are their \documentname{IA-32 Intel Architecture Software Developer's Manual}
 in its three volumes::
 
