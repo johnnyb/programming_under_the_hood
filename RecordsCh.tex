@@ -54,7 +54,7 @@ Put them in a file named
 \icodefilename{record-def.s}:
 
 \begin{simpletyping}
-\lstinputlisting{record-def}
+\lstinputlisting{record-def.s}
 \end{simpletyping}
 
 In addition, there are several constants that we have been defining over
@@ -63,7 +63,7 @@ we don't have to keep entering them.  Put the following
 constants\index{constants} in a file called \icodefilename{linux.s}:
 
 \begin{simpletyping}
-\lstinputlisting{linux}
+\lstinputlisting{linux.s}
 \end{simpletyping}
 
 We will write three programs in this chapter using the structure defined in \icodefilename{record-def.s}.
@@ -87,7 +87,7 @@ basically need:
 Let's look at our reading function first:
 
 \begin{simpletyping}
-\lstinputlisting{read-record}
+\lstinputlisting{read-record.s}
 \end{simpletyping}
 
 It's a pretty simple function.  It just reads data the size of our structure
@@ -95,7 +95,7 @@ into an appropriately sized buffer from the given file descriptor.  The
 writing one is similar:
 
 \begin{simpletyping}
-\lstinputlisting{write-record}
+\lstinputlisting{write-record.s}
 \end{simpletyping}
 
 Now that we have our basic definitions down, we are ready to write
@@ -118,7 +118,7 @@ Type the following code into a file called \icodefilename{write-records.s}:
 \index{null}
 
 \begin{simpletyping}
-\lstinputlisting{write-records}
+\lstinputlisting{write-records.s}
 \end{simpletyping}
 
 %  FIXME - need to add info on how to use a hexdump to read the values 
@@ -195,7 +195,7 @@ one null character each.
 Here is the code.  Put it in a file called \icodefilename{count-chars.s}:
 
 \begin{simpletyping}
-\lstinputlisting{count-chars}
+\lstinputlisting{count-chars.s}
 \end{simpletyping}
 
 As you can see, it's a fairly straightforward function.  It simply 
@@ -226,7 +226,7 @@ Now we are ready to write the main program.  Here is the code to
 \icodefilename{read-records.s}:
 
 \begin{simpletyping}
-\lstinputlisting{read-records}
+\lstinputlisting{read-records.s}
 \end{simpletyping}
 
 To build this program, we need to assemble all of the
@@ -290,7 +290,7 @@ once you know exactly what it is you want to do.  Most of them initialize
 data, do some processing in a loop, and then clean everything up.}
 
 \begin{simpletyping}
-\lstinputlisting{add-year}
+\lstinputlisting{add-year.s}
 \end{simpletyping}
 
 You can type it in as \icodefilename{add-year.s}.  To build it, type

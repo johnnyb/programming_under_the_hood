@@ -139,14 +139,14 @@ what it is in decimal, we take it apart like this:
 \begin{lstlisting}
      1    0    0    1    0    1    0    1
      |    |    |    |    |    |    |    |
-     |    |    |    |    |    |    |    Individual units (2\textasciicircum0)
-     |    |    |    |    |    |    0 groups of 2 (2\textasciicircum1)
-     |    |    |    |    |    1 group of 4 (2\textasciicircum2)
-     |    |    |    |    0 groups of 8 (2\textasciicircum3)
-     |    |    |    1 group of 16 (2\textasciicircum4)
-     |    |    0 groups of 32 (2\textasciicircum5)
-     |    0 groups of 64 (2\textasciicircum6)
-     1 group of 128 (2\textasciicircum7)
+     |    |    |    |    |    |    |    Individual units (2\textasciicircum 0)
+     |    |    |    |    |    |    0 groups of 2 (2\textasciicircum 1)
+     |    |    |    |    |    1 group of 4 (2\textasciicircum 2)
+     |    |    |    |    0 groups of 8 (2\textasciicircum 3)
+     |    |    |    1 group of 16 (2\textasciicircum 4)
+     |    |    0 groups of 32 (2\textasciicircum 5)
+     |    0 groups of 64 (2\textasciicircum 6)
+     1 group of 128 (2\textasciicircum 7)
 \end{lstlisting}
 \end{simpletyping}
 
@@ -243,8 +243,8 @@ see this for yourself if you convert binary 11111111 into decimal:
 \begin{lstlisting}
 11111111 =
 
-(1 * 2\textasciicircum7) + (1 * 2\textasciicircum6) + (1 * 2\textasciicircum5) + (1 * 2\textasciicircum4) + (1 * 2\textasciicircum3) 
-          + (1 * 2\textasciicircum2) + (1 * 2\textasciicircum1) + (1 * 2\textasciicircum0) = 
+(1 * 2\textasciicircum 7) + (1 * 2\textasciicircum 6) + (1 * 2\textasciicircum 5) + (1 * 2\textasciicircum 4) + (1 * 2\textasciicircum 3) 
+          + (1 * 2\textasciicircum 2) + (1 * 2\textasciicircum 1) + (1 * 2\textasciicircum 0) = 
 
 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 =
 
@@ -730,10 +730,10 @@ at a fixed precision\index{precision} (number of significant bits).
 A computer stores decimal numbers in two
 parts - the \emph{exponent\index{exponent}} and the \emph{mantissa\index{mantissa}}.  The mantissa contains the actual
 digits that will be used, and the exponent is what magnitude the number
-is.  For example, 12345.2 can be represented as 1.23452 * 10\textasciicircum4.  The mantissa
+is.  For example, 12345.2 can be represented as 1.23452 * 10\textasciicircum 4.  The mantissa
 is 1.23452 and the exponent is 4 with a base of 10.  Computers, however, 
 use a base of 2.  All numbers are stored
-as X.XXXXX * 2\textasciicircumXXXX.  The number 1, for example, is stored as 1.00000 * 2\textasciicircum0.
+as X.XXXXX * 2\textasciicircum XXXX.  The number 1, for example, is stored as 1.00000 * 2\textasciicircum 0.
 Separating the mantissa and the exponent into two different values is called
 a \emph{floating point}\index{floating point} representation, because the position of the significant digits with respect to the decimal point can vary based on the exponent.
 
@@ -834,7 +834,7 @@ In fact, they are probably written more often than binary.  Octal is
 a representation that only uses the numbers 0 through 7.  So the octal
 number 10 is actually 8 in decimal because it is one group of eight.
 Octal 121 is decimal 81 (one group of
-64 (8\textasciicircum2), two groups of 8, and one left over).  What makes octal nice
+64 (8\textasciicircum 2), two groups of 8, and one left over).  What makes octal nice
 is that every 3 binary digits make one octal digit (there is no such grouping
 of binary digits into decimal).  So 0 is 000, 1 is 001, 2 is 010, 3 is
 011, 4 is 100, 5 is 101, 6 is 110, and 7 is 111.
@@ -993,7 +993,7 @@ The code for the function should be put in a file called
 \icodefilename{integer-to-string.s} and should be entered as follows:
 
 \begin{simpletyping}
-\lstinputlisting{integer-to-string}
+\lstinputlisting{integer-to-string.s}
 \end{simpletyping}
 
 To show this used in a full program, use the following code, along
@@ -1002,7 +1002,7 @@ functions written about in previous chapters.  The code should be
 in a file called \icodefilename{conversion-program.s}.
 
 \begin{simpletyping}
-\lstinputlisting{conversion-program}
+\lstinputlisting{conversion-program.s}
 \end{simpletyping}
 
 To build the program, issue the following commands:
