@@ -1,0 +1,548 @@
+\chapter{Sharing Functions with Code Libraries}
+\label{linking}
+
+% 
+% 
+% Copyright 2002 Jonathan Bartlett
+% 
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation; with no Invariant Sections, with no Front-Cover Texts,
+% and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+% 
+
+By now you should realize that the computer has to do a lot
+of work even for simple tasks.  Because of that, you have to
+do a lot of work to write the code for a computer to even do
+simple tasks.  In addition, programming tasks are usually not
+very simple.  Therefore, we neeed a way to make this process
+easier on ourselves.  There are several ways to do this, including:
+
+\begin{itemize}\item Write code in a high-level language instead of assembly language 
+\item Have lots of pre-written code that you can cut and paste into your own programs 
+\item Have a set of functions\index{functions} on the system that are shared among any program that wishes to use it 
+\end{itemize}
+
+All three of these are usually used to some degree in any given project.  The 
+first option
+will be explored further in \autoref{highlevellanguages}.  The
+second option is useful but it suffers from some drawbacks, including:
+
+\begin{itemize}\item Code that is copied often has to be majorly modified to fit the surrounding code. 
+\item Every program containing the copied code has the same code in it, thus wasting a lot of space. 
+\item If a bug is found in any of the copied code it has to be fixed in every application program. 
+\end{itemize}
+
+Therefore, the second option is usually used sparingly.  It is  usually 
+only used in cases where you copy and paste skeleton code\index{skeleton code} 
+for a specific type of task, and add in your program-specific
+details.  The third option is the one that is used the most often.  The third option includes having a central repository of shared code.  Then, instead of each program wasting
+space storing the same copies of functions, they can simply point to the
+\emph{dynamic libraries} \index{shared libraries} \index{dynamic libraries}
+which contain the functions they need.  If a bug is found in
+one of these functions, it only has to be fixed within the single function library 
+file, and all applications which use it are automatically updated.  The 
+main drawback with this approach is that it creates some dependency problems,
+including:
+
+\begin{itemize}\item If multiple applications are all using the same file, how do we know when it is safe to delete the file?  For example, if three applications are sharing a file of functions and 2 of the programs are deleted, how does the system know that there still exists an application that uses that code, and therefore it shouldn't be deleted? 
+\item Some programs inadvertantly rely on bugs within shared functions.  Therefore, if upgrading the shared functions fixes a bug that a program depended on, it could cause that application to cease functioning. 
+\end{itemize}
+
+These problems are what lead to what is known as "DLL hell".
+However, it is generally assumed that the advantages outweigh the disadvantages.
+
+In programming, these shared code files are referred to as 
+\emph{shared libraries} \index{shared libraries}, \emph{dynamic libraries} \index{dynamic libraries}, 
+\emph{shared objects\index{shared objects}}, 
+\emph{dynamic-link libraries\index{dynamic-link libraries}}, 
+\emph{DLLs\index{DLLs}}, or \emph{.so files}.\footnote{Each of these terms have slightly different meanings, but most people use them interchangeably anyway.  Specifically, this chapter will cover dynamic libraries, but not shared libraries.  Shared libraries are dynamic libraries which are built using \emph{position-independent code}\index{position-independent code} (often abbreviated PIC\index{PIC}) which is outside the scope of this book.  However, shared libraries and dynamic libraries are used in the same way by users and programs; the linker just links them differently.} We will refer to all of these as \emph{dynamic libraries}.
+
+\section{Using a Dynamic Library}
+
+The program we will examine here is simple - it writes the
+characters \icode{hello world} to the screen and
+exits.  The regular program, \icodefilename{helloworld-nolib.s}, 
+looks like this:
+
+\begin{simpletyping}
+\lstinputlisting{helloworld-nolib.s}
+\end{simpletyping}
+
+That's not too long.  However, take a look at how short 
+\icodefilename{helloworld-lib} is which uses a library:
+
+\begin{simpletyping}
+\lstinputlisting{helloworld-lib.s}
+\end{simpletyping}
+
+It's even shorter!
+
+Now, building programs which use dynamic libraries\index{dynamic libraries} is a little
+different than normal.  You can build the first program normally
+by doing this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as helloworld-nolib.s -o helloworld-nolib.o
+ld helloworld-nolib.o -o helloworld-nolib
+\end{lstlisting}
+\end{simpletyping}
+
+However, in order to build the second program, you have to do this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as helloworld-lib.s -o helloworld-lib.o
+ld -dynamic-linker /lib/ld-linux.so.2 \\
+   -o helloworld-lib helloworld-lib.o -lc
+\end{lstlisting}
+\end{simpletyping}
+
+Remember, the backslash in the first line simply means that the command continues on the next line.  The option
+\icode{-dynamic-linker\index{-dynamic-linker}
+ /lib/ld-linux.so.2} allows our
+program to be linked to libraries.  This builds the executable so that
+before executing, the operating system will load the program 
+\icodefilename{/lib/ld-linux.so.2} to load in external libraries
+and link them with the program.  This program is known as a 
+\emph{dynamic linker\index{dynamic linker}}.
+
+The \icode{-lc} option
+says to link to the \icode{c} library, named 
+\icodefilename{libc.so} on GNU/Linux systems.  Given a library
+name, \icode{c} in this case (usually library names are
+longer than a single letter), the GNU/Linux linker prepends
+the string \icode{lib} to the beginning of the library name and 
+appends \icode{.so} to the end of it to form the library's
+filename.  This library contains many functions to automate
+all types of tasks.  The two we are using are
+\icode{printf\index{printf}}, which prints strings, and 
+\icode{exit\index{exit}}, which exits the program.  
+
+Notice that the symbols \icode{printf} and \icode{exit}
+are simply referred to by name within the program.  In previous chapters, the 
+linker would resolve all of the names to physical memory addresses, and the
+names would be thrown away.  When using dynamic linking\index{dynamic linking}, the name itself
+resides within the executable, and is resolved by the dynamic linker when it
+is run.  When the program is run by the user,
+the dynamic linker\index{dynamic linker} loads the 
+dynamic libraries\index{dynamic libraries} listed in our link statement,
+and then finds all of the function and variable names that were named by
+our program but not found at link time, and matches them up with corresponding
+entries in the shared libraries it loads.  It then replaces all of the names
+with the addresses which they are loaded at.  This sounds time-consuming.  It
+is to a small degree, but it only happens once - at program startup time.
+
+\section{How Dynamic Libraries Work}
+
+In our first programs, all of the code was contained within the
+source file.  Such programs are called
+\emph{statically-linked executables\index{statically-linked}}, because
+they contained all of the necessary functionality for the program
+that wasn't handled by the kernel.  In the programs we wrote in
+\autoref{records}, we used both our main program file 
+and files containing routines used by multiple programs.  In these cases, 
+we combined all of the code together using the linker at link-time, so it 
+was still statically-linked.
+However, in the \icode{helloworld-lib} program, we started
+using dynamic libraries.  When you use dynamic libraries, your program is
+then \emph{dynamically-linked\index{dynamically-linked}}, which means that not all of the code
+needed to run the program is actually contained within the program file
+itself, but in external libraries.
+
+When we put the \icode{-lc} on the command to
+link the \icode{helloworld} program, it told the linker
+to use the \icode{c} library (\icodefilename{libc.so}) to look up any symbols\index{symbols} that
+weren't already defined in \icodefilename{helloworld.o}.  However,
+it doesn't actually add any code to our program, it just notes in
+the program where to look.  
+When the \icode{helloworld} program begins, the file
+\icodefilename{/lib/ld-linux.so.2\index{/lib/ld-linux.so.2}} is loaded first.  This is
+the dynamic linker\index{dynamic linker}.  This looks at our \icode{helloworld}
+program and sees that it needs the \icode{c} library
+to run.  So, it searches for a file called \icodefilename{libc.so}
+in the standard places (listed in \icodefilename{/etc/ld.so.conf\index{/etc/ld.so.conf}}
+and in the contents of the \icode{LD\_LIBRARY\_PATH\index{LD\_LIBRARY\_PATH}} environment variable),
+then looks in it for all the needed symbols (\icode{printf} 
+and \icode{exit} in this
+case), and then loads the library into the program's virtual memory.
+Finally, it replaces all instances of \icode{printf} in the
+program with the actual location of \icode{printf} in the
+library.  
+
+Run the following command:
+
+\begin{simpletyping}
+\begin{lstlisting}
+ldd\index{ldd} ./helloworld-nolib
+\end{lstlisting}
+\end{simpletyping}
+
+It should report back \icode{not a dynamic executable}.  
+This is just like we said - \icode{helloworld-nolib} is a 
+statically-linked executable.  However, try this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+ldd ./helloworld-lib
+\end{lstlisting}
+\end{simpletyping}
+
+It will report back something like
+
+\begin{simpletyping}
+\begin{lstlisting}
+      libc.so.6 => /lib/libc.so.6 (0x4001d000)
+      /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x400000000)
+\end{lstlisting}
+\end{simpletyping}
+
+The numbers in parenthesis may be different on your system.  This
+means that the program \icode{helloworld} is 
+linked to \icodefilename{libc.so.6} (the \icode{.6} 
+is the version number), which is found at \icodefilename{/lib/libc.so.6},
+and \icodefilename{/lib/ld-linux.so.2} is found at 
+\icodefilename{/lib/ld-linux.so.2}.  These libraries have to be loaded
+before the program can be run.  If you are interested, run the \icode{ldd}
+program on various programs that are on your Linux distribution, and see what
+libraries they rely on.
+
+\section{Finding Information about Libraries}
+
+Okay, so now that you know about libraries, the question is, how
+do you find out what libraries you have on your system and what
+they do?  Well, let's skip that question for a minute and ask another
+question: How do programmers describe functions to each other in their 
+documentation?  Let's
+take a look at the function \icode{printf}.  Its calling interface\index{calling interface}
+(usually referred to as a \emph{prototype\index{prototype}}) looks like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+int printf(char *string, ...);
+\end{lstlisting}
+\end{simpletyping}
+
+In Linux, functions\index{functions} are described in the C programming language\index{C programming language}.
+In fact, most Linux programs are written in C.  That is why most documentation
+and binary compatibility is defined using the C language.  The interface to
+the \icode{printf} function above is described using the C programming language.
+
+This definition means that there is a function \icode{printf}.
+The things inside the parenthesis are the function's parameters\index{parameters} or arguments.
+The first parameter here is \icode{char *string}.  This means
+there is a parameter named \icode{string} (the name isn't
+important, except to use for talking about it), which has a 
+type \icode{char *}.  \icode{char\index{char}}
+means that it wants a single-byte character.  The \icode{*\index{*}} after it means
+that it doesn't actually want a character as an argument, but instead
+it wants the address of a character or sequence of characters.  If you look
+back at our \icode{helloworld program}, you will notice that
+the function call looked like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	pushl \$hello
+	call  printf
+\end{lstlisting}
+\end{simpletyping}
+
+So, we pushed the address of the \icode{hello} string, rather
+than the actual characters.  You might notice that we didn't push the length
+of the string.  The way that \icode{printf\index{printf}} found
+the end of the string was because we ended it with a null character\index{null character}
+(\icode{\\0}).  Many functions work that way, especially C language
+functions.  The \icode{int\index{int}} before the function definition tell what
+type of value the function will return in {\eaxRegIdx} when it returns.
+\icode{printf} will return an \icode{int}
+when it's through.  Now, after the \icode{char *string}, we
+have a series of periods, \icode{...\index{...}}.  This means that it
+can take an indefinite number of additional arguments after the string.  
+Most functions can only take a specified number of arguments.  \icode{printf},
+however, can take many.  It will look into the 
+\icode{string} parameter, and everywhere it sees the characters
+\icode{\%s}, it will look for another string from the stack to insert, and
+everywhere it sees \icode{\%d} it will look for a number
+from the stack to insert.  This is best described using an example:
+
+\begin{simpletyping}
+\lstinputlisting{printf-example.s}
+\end{simpletyping}
+
+Type it in with the filename \icodefilename{printf-example.s},
+and then do the following commands:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as printf-example.s -o printf-example.o
+ld printf-example.o -o printf-example -lc \\
+   -dynamic-linker /lib/ld-linux.so.2
+\end{lstlisting}
+\end{simpletyping}
+
+Then run the program with \icode{./printf-example}, and it
+should say this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+Hello! Jonathan is a person who loves the number 3
+\end{lstlisting}
+\end{simpletyping}
+
+Now, if you look at the code, you'll see that we actually push
+the format string last, even though it's the first parameter listed.  You
+always push a functions parameters in reverse order.\footnote{The reason that parameters are pushed in the reverse order is because
+of functions which take a variable number of parameters like 
+\icode{printf}.  The parameters pushed in last 
+will be in a known position relative to the top of the stack.  The
+program can then use these parameters to determine where on the stack
+the additional arguments are, and what type they are.  For example, 
+\icode{printf} uses the format string to determine how many
+other parameters are being sent.  If we pushed the known arguments first, 
+you wouldn't be able to tell where they were on the stack.  
+}
+You may be wondering
+how the \icode{printf\index{printf}} function knows how many parameters
+there are.  Well, it searches through your string, and counts how 
+many \icode{\%d}s and \icode{\%s}s it finds,
+and then grabs that number of parameters from the stack.  If the
+parameter matches a \icode{\%d}, it treats it as a number,
+and if it matches a \icode{\%s}, it treats it as a pointer
+to a null-terminated string.  \icode{printf} has 
+many more features than this, but these are the most-used ones.
+So, as you can see, \icode{printf} can make output a
+lot easier, but it also has a lot of overhead, because it has to
+count the number of characters in the string, look through it for all of the
+control characters it needs to replace, pull them off the stack,
+convert them to a suitable representation (numbers have to be converted
+to strings, etc), and stick them all together appropriately.  
+
+We've seen how to use the C programming language\index{C programming language} prototypes\index{prototypes} to
+call library functions.  To use them effectively, however, you need to know 
+several more of the possible data types for reading functions.  Here are
+the main ones:
+
+\begin{description}
+\item[\icode{int\index{int}}] An \icode{int} is an integer number (4 bytes on x86 processor).
+\item[\icode{long\index{long}}] A \icode{long} is also an integer number (4 bytes on an x86 processor).
+\item[\icode{long long\index{long long}}] A \icode{long long} is an integer number that's larger than a \icode{long} (8 bytes on an x86 processor).
+\item[\icode{short\index{short}}] A short is an integer number that's shorter than an \icode{int} (2 bytes on an x86 processor).
+\item[\icode{char\index{char}}] A \icode{char} is a single-byte integer number.  This is mostly used for storing
+character data, since ASCII strings usually are represented with one byte per character.
+\item[\icode{float\index{float}}] A \icode{float} is a floating-point number (4 bytes on an x86 processor). 
+Floating-point numbers will be explained in more depth in \autoref{floatingpoint}.
+\item[\icode{double\index{double}}] A \icode{double} is a floating-point number that is larger than a float
+(8 bytes on an x86 processor).
+\item[\icode{unsigned\index{unsigned}}] \icode{unsigned} is a modifier used for any of the above types which 
+keeps them from being used as signed quantities.  The difference between signed
+and unsigned numbers will be discussed in \autoref{countingchapter}.
+\item[\icode{*\index{*}}] An asterisk (\icode{*}) is used to denote that the data isn't an actual
+value, but instead is a pointer to a location holding the given
+value (4 bytes on an x86 processor).  
+So, let's say in memory location \icode{my\_location} you have the number 20 stored.  
+If the prototype said to pass an \icode{int}, you would 
+use direct addressing mode\index{direct addressing mode} and do \icode{pushl my\_location}.
+However, if the prototype said to pass an \icode{int *},
+you would do \icode{pushl \$my\_location} - an immediate mode\index{immediate mode addressing} push of
+the address that the value resides in.  In addition to indicating the address of 
+a single value, pointers can also be used to
+pass a sequence of consecutive locations, starting with the one pointed to by the 
+given value.  This is called an array\index{array}.
+\item[\icode{struct\index{struct}}] A \icode{struct} is a set of data items that have been put together under
+a name.  For example you could declare:
+
+\begin{simpletyping}
+\begin{lstlisting}
+struct teststruct {
+	int a;
+	char *b;
+};
+\end{lstlisting}
+\end{simpletyping}
+
+and any time you ran into \icode{struct teststruct} you
+would know that it is actually two words right next to each other,
+the first being an integer, and the second a pointer to a character
+or group of characters.  You never see structs passed
+as arguments to functions.  Instead, you usually see pointers to 
+structs passed as arguments.  This is because passing structs to functions
+is fairly complicated, since they can take up so many storage locations.
+\item[\icode{typedef\index{typedef}}] A \icode{typedef} basically allows you to rename a type.  For example, I can
+do \icode{typedef int myowntype;} in a C program, and 
+any time I typed \icode{myowntype}, it would be just
+as if I typed \icode{int}.  This can get kind of
+annoying, because you have to look up what all of the typedefs and
+structs in a function prototype really mean.  However, \icode{typedef}s
+are useful for giving types more meaningful and descriptive names.
+\end{description}
+
+\begin{sidebar}[Compatibility Note]
+The listed sizes are for intel-compatible (x86) machines.  Other machines will
+have different sizes.  Also, even when parameters shorter than a word are
+passed to functions, they are passed as longs on the stack.
+\end{sidebar}
+
+That's how to read function documentation.  Now, let's get back to the 
+question of how to find out about libraries.
+Most of your system libraries are in \icodefilename{/usr/lib\index{/usr/lib}}
+or \icodefilename{/lib\index{/lib}}.  If you want to just see what symbols they
+define, just run \icode{objdump\index{objdump} -R FILENAME} where 
+\icode{FILENAME} is the full path to the library.  The output
+of that isn't too helpful, though, for finding an interface that you might
+need.  Usually, you have to know what 
+library you want at the beginning, and then just read the documentation.
+Most libraries have manuals or man pages for their functions.  The web is the
+best source of documentation for libraries.  Most libraries from
+the GNU project also have info pages on them, which are a little more
+thorough than man pages.
+
+\section{Useful Functions}
+
+Several useful functions you will want to be aware of from the \icode{c}
+library include:
+
+\begin{itemize}\item \icode{size\_t strlen\index{strlen} (const char *s)} calculates the size of null-terminated strings. 
+\item \icode{int strcmp\index{strcmp} (const char *s1, const char *s2)} compares two strings alphabetically. 
+\item \icode{char * strdup\index{strdup} (const char *s)} takes the pointer to a string, and creates a new copy in a new location, and returns the new location. 
+\item \icode{FILE * fopen\index{fopen} (const char *filename, const char *opentype)} opens a managed, buffered file (allows easier reading and writing than using file descriptors directly).\footnote{\icode{stdin}, \icode{stdout}, and \icode{stderr} (all lower case) can be used in these programs to refer to the files of their corresponding file descriptors.}\footnote{\icode{FILE} is a struct.  You don't need to know its contents to use it.  You only have to store the pointer and pass it to the relevant other functions.} 
+\item \icode{int fclose\index{fclose} (FILE *stream)} closes a file opened with \icode{fopen}. 
+\item \icode{char * fgets\index{fgets} (char *s, int count, FILE *stream)} fetches a line of characters into string \icode{s}. 
+\item \icode{int fputs\index{fputs} (const char *s, FILE *stream)} writes a string to the given open file. 
+\item \icode{int fprintf\index{fprintf} (FILE *stream, const char *template, ...)} is just like \icode{printf}, but it uses an open file rather than defaulting to using standard output. 
+\end{itemize}
+
+You can find the complete manual on this library by going to http://www.gnu.org/software/libc/manual/
+
+\section{Building a Dynamic Library}
+
+Let's say that we wanted to take all of our shared code from 
+\autoref{records} and build it into a dynamic library\index{dynamic library} to
+use in our programs.  The first thing we would do is assemble them
+like normal:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as write-record.s -o write-record.o
+as read-record.s -o read-record.o
+\end{lstlisting}
+\end{simpletyping}
+
+Now, instead of linking them into a program, we want to link
+them into a dynamic library.  This changes our linker command
+to this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+ld -shared write-record.o read-record.o -o librecord.so
+\end{lstlisting}
+\end{simpletyping}
+
+This links both of these files together into a dynamic library\index{dynamic library}
+called \icodefilename{librecord.so}.  This file can now
+be used for multiple programs.  If we need to update the functions
+contained within it, we can just update this one file and not
+have to worry about which programs use it.
+
+Let's look at how we would link against this library.  To link
+the \icode{write-records} program, we would do the
+following:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as write-records.s -o write-records
+ld -L . -dynamic-linker /lib/ld-linux.so.2 \\
+   -o write-records -lrecord write-records.o
+\end{lstlisting}
+\end{simpletyping}
+
+In this command, \icode{-L .} told the linker to look
+for libraries in the current directory (it usually only searches 
+\icodefilename{/lib\index{/lib}} directory, 
+\icodefilename{/usr/lib\index{/usr/lib}}
+directory, and a few others).  As we've seen, the option
+\icode{-dynamic-linker /lib/ld-linux.so.2} specified the dynamic 
+linker.  The option \icode{-lrecord} tells the linker to search 
+for functions in the file named \icodefilename{librecord.so}.  
+
+Now the \icode{write-records} program is built, but it will not 
+run.  If we try it, we will get an error like the following:
+
+\begin{simpletyping}
+\begin{lstlisting}
+./write-records: error while loading shared libraries: 
+librecord.so: cannot open shared object file: No such 
+file or directory
+\end{lstlisting}
+\end{simpletyping}
+
+This is because, by default, the dynamic linker only searches 
+\icodefilename{/lib}, \icodefilename{/usr/lib}, and whatever
+directories are listed in \icodefilename{/etc/ld.so.conf\index{/etc/ld.so.conf}} for
+libraries.  In order to run the program, you either need to move the
+library to one of these directories, or execute the following command:
+
+\begin{simpletyping}
+\begin{lstlisting}
+LD\_LIBRARY\_PATH=.
+export LD\_LIBRARY\_PATH
+\end{lstlisting}
+\end{simpletyping}
+
+\index{LD\_LIBRARY\_PATH}
+
+Alternatively, if that gives you an error, do this instead:
+
+\begin{simpletyping}
+\begin{lstlisting}
+setenv LD\_LIBRARY\_PATH .
+\end{lstlisting}
+\end{simpletyping}
+
+Now, you can run \icode{write-records} normally by typing
+\icode{./write-records}.  Setting 
+\icode{LD\_LIBRARY\_PATH} tells the linker to add whatever
+paths you give it to the library search path for dynamic libraries.
+
+For further information about dynamic linking, see the following sources
+on the Internet:
+
+\begin{itemize}\item The man page for \icode{ld.so} contains a lot of information about how the Linux dynamic linker works. 
+\item http://www.benyossef.com/presentations/dlink/ is a great presentation on dynamic linking in Linux. 
+\item http://www.linuxjournal.com/article.php?sid=1059 and http://www.linuxjournal.com/article.php?sid=1060 provide a good introduction to the ELF\index{ELF} file format, with more detail available at http://www.cs.ucdavis.edu/~haungs/paper/node10.html 
+\item http://www.iecc.com/linker/linker10.html contains a great description of how dynamic linking works with ELF files. 
+\item http://linux4u.jinr.ru/usoft/WWW/www\_debian.org/Documentation/elf/node21.html contains a good introduction to programming position-independent code for shared libraries under Linux. 
+\end{itemize}
+
+\section{Review}
+
+\section{Know the Concepts}
+
+\begin{itemize}\item What are the advantages and disadvantages of shared libraries? 
+\item Given a library named 'foo', what would the library's filename be? 
+\item What does the \icode{ldd} command do? 
+\item Let's say we had the files \icodefilename{foo.o} and \icodefilename{bar.o}, and you wanted to link them together, and dynamically link them to the library 'kramer'.  What would the linking command be to generate the final executable? 
+\item What is \emph{typedef} for? 
+\item What are \emph{struct}s for? 
+\item What is the difference between a data element of type \emph{int} and \emph{int *}?  How would you access them differently in your program? 
+\item If you had a object file called \icodefilename{foo.o}, what would be the command to create a shared library called 'bar'? 
+\item What is the purpose of LD\_LIBRARY\_PATH? 
+\end{itemize}
+
+\section{Use the Concepts}
+
+\begin{itemize}\item Rewrite one or more of the programs from the previous chapters to print their results to the screen using \icode{printf} rather than returning the result as the exit status code.  Also, make the exit status code be 0. 
+\item Use the \icode{factorial} function you developed in \autoref{recursivefunctions} to make a shared library.  Then re-write the main program so that it links with the library dynamically. 
+\item Rewrite the program above so that it also links with the 'c' library.  Use the 'c' library's \icode{printf} function to display the result of the \icode{factorial} call. 
+\item Rewrite the \icode{toupper} program so that it uses the \icode{c} library functions for files rather than system calls. 
+\end{itemize}
+
+\section{Going Further}
+
+\begin{itemize}\item Make a list of all the environment variables used by the GNU/Linux dynamic linker. 
+\item Research the different types of executable file formats in use today and in the history of computing.  Tell the strengths and weaknesses of each. 
+\item What kinds of programming are you interested in (graphics, databbases, science, etc.)?  Find a library for working in that area, and write a program that makes some basic use of that library. 
+\item Research the use of \icode{LD\_PRELOAD}.  What is it used for?  Try building a shared library that contained the \icode{exit} function, and have it write a message to STDERR before exitting.  Use \icode{LD\_PRELOAD} and run various programs with it.  What are the results? 
+\end{itemize}
+

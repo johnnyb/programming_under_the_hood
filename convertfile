@@ -36,7 +36,7 @@ perl -pi -e 'BEGIN{undef $/;}s/<!--(.*?)-->/$1 =~ s!^(.*)$!% $1!grm . "\n" /gesi
 
 # Convert Code to use BP Code Listing
 perl -pi -e 'BEGIN{undef $/;} s!<programlisting>\s*&(.*?);\s*</programlisting>!\\begin{simpletyping}\n\\lstinputlisting{$1}\n\\end{simpletyping}\n!gsi' $DEST
-perl -pi -e 's!\\lstinputlisting{([\w-]+)-s}!"\\lstinputlisting{" . $1 =~ s/-//gr .  ".s}"!gesi' $DEST
+perl -pi -e 's!\\lstinputlisting{([\w-]+)-s}!"\\lstinputlisting{" . $1 .  ".s}"!gesi' $DEST
 perl -pi -e 'BEGIN{undef $/;}s!<programlisting>(.*?)</programlisting>!\\begin{simpletyping}\n\\begin{lstlisting}$1\\end{lstlisting}\n\\end{simpletyping}\n!gsi' $DEST
 
 # Convert chapter

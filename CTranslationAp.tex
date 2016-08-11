@@ -1,0 +1,514 @@
+\chapter{C Idioms in Assembly Language}
+\label{ctranslationap}
+
+% 
+% 
+% Copyright 2002 Jonathan Bartlett
+% 
+% Permission is granted to copy, distribute and/or modify this
+% document under the terms of the GNU Free Documentation License,
+% Version 1.1 or any later version published by the Free Software
+% Foundation; with no Invariant Sections, with no Front-Cover Texts,
+% and with no Back-Cover Texts.  A copy of the license is included in fdl.xml
+% 
+
+\index{C programming language}
+This appendix is for C programmers learning assembly language.  It is meant to
+give a general idea about how C constructs can be implemented in assembly 
+language.
+
+\section{If Statement}
+
+In C, an if statement\index{if statement} consists of three parts - the condition\index{condition}, the true branch\index{true branch}, and the false branch\index{false branch}.  However, since assembly language is not
+a block structured language\index{block structured language}, you have to work a little to implement
+the block-like nature of C.  For example, look at the following C code:
+
+\begin{simpletyping}
+\begin{lstlisting}
+if(a == b)
+{
+	/* True Branch Code Here */
+}
+else
+{
+	/* False Branch Code Here */
+}
+
+/* At This Point, Reconverge */
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language, this can be rendered as:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	\#Move a and b into registers for comparison
+	movl a, {\eaxBare}
+	movl b, {\ebxBare}
+
+	\#Compare
+	cmpl {\eaxBare}, {\ebxBare}
+
+	\#If True, go to true branch
+	je true\_branch
+
+false\_branch:  \#This label is unnecessary, 
+               \#only here for documentation
+	\#False Branch Code Here
+
+	\#Jump to recovergence point
+	jmp reconverge
+
+true\_branch:
+	\#True Branch Code Here
+
+reconverge:
+	\#Both branches recoverge to this point
+\end{lstlisting}
+\end{simpletyping}
+
+As you can see, since assembly language is linear, the blocks have to
+jump around each other.  Recovergence is handled by the programmer, not
+the system.
+
+A case statement\index{case statement} is written just like a sequence of if statements.
+
+\section{Function Call}
+
+A function call\index{function call} in assembly language simply requires pushing the arguments
+to the function onto the stack in \emph{reverse} order, and
+issuing a \icode{call\index{call}} instruction.  After calling, the arguments
+are then popped back off of the stack.  For example, consider
+the C code:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	printf("The number is \%d", 88);
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language, this would be rendered as:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	.section .data
+	text\_string:
+	.ascii "The number is \%d\\0"
+
+	.section .text
+	pushl \$88
+	pushl \$text\_string
+	call  printf
+	popl  {\eaxBare}
+	popl  {\eaxBare}      \#{\eaxBare} is just a dummy variable,
+	                \#nothing is actually being done 
+	                \#with the value.  You can also 
+	                \#directly re-adjust {\espBare} to the
+	                \#proper location.
+\end{lstlisting}
+\end{simpletyping}
+
+\section{Variables and Assignment}
+
+ 
+\index{global variables} 
+\index{static variables} 
+\index{local variables} 
+Global and static variables are declared using
+\icode{.data} or \icode{.bss} entries.  Local
+variables are declared by reserving space on the stack at the
+beginning of the function.  This space is given back at the end of the
+function.  
+
+Interestingly, global variables are accessed differently than local variables
+in assembly language.  Global variables are accessed using direct addressing\index{direct addressing mode},
+while local variables are accessed using base pointer addressing\index{base pointer addressing mode}.  For
+example, consider the following C code:
+
+\begin{simpletyping}
+\begin{lstlisting}
+int my\_global\_var;
+
+int foo()
+{
+	int my\_local\_var;
+
+	my\_local\_var = 1;
+	my\_global\_var = 2;
+
+	return 0;
+}
+\end{lstlisting}
+\end{simpletyping}
+
+This would be rendered in assembly language as:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	.section .data
+	.lcomm my\_global\_var, 4
+
+	.type foo, @function
+foo:
+	pushl {\ebpBare}            \#Save old base pointer
+	movl  {\espBare}, \$ebp      \#make stack pointer base pointer
+	subl  \$4, {\espBare}        \#Make room for my\_local\_var
+	.equ my\_local\_var, -4 \#Can now use my\_local\_var to 
+	                      \#find the local variable
+
+	movl  \$1, my\_local\_var({\ebpBare})
+	movl  \$2, my\_global\_var
+
+	movl  {\ebpBare}, {\espBare}      \#Clean up function and return
+	popl  {\ebpBare}
+	ret
+\end{lstlisting}
+\end{simpletyping}
+
+What may not be obvious is that accessing the global variable takes fewer
+machine cycles than accessing the local variable.  However, that may not
+matter because the stack is more likely to be in physical memory\index{physical memory} (instead of swap)
+than the global variable is.
+
+Also note that in the C programming language, after the compiler loads a value into a register, that value will likely
+stay in that register until that register is needed for something else.  It
+may also move registers.  For example, if you have a variable 
+\icode{foo}, it may start on the stack, but the compiler will
+eventually move it into registers for processing.  If there aren't many
+variables in use, the value may simply stay in the register until it is
+needed again.  Otherwise, when that register is needed for something else,
+the value, if it's changed, is copied back to its corresponding memory 
+location.  In C, you can use the keyword \icode{volatile\index{volatile}} to
+make sure all modifications and references to the variable are done to
+the memory location itself, rather than a register copy of it, in case
+other processes, threads, or hardware may be modifying the value while
+your function is running.
+
+\section{Loops}
+
+Loops\index{loops} work a lot like if statements in assembly language - the blocks are
+formed by jumping around.  In C, a while loop consists of a loop body, and a
+test to determine whether or not it is time to exit the loop. A for loop
+is exactly the same, with optional initialization and counter-increment 
+sections.  These can simply be moved around to make a while loop\index{while loop}.
+
+In C, a while loop looks like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	while(a < b)
+	{
+		/* Do stuff here */
+	}
+
+	/* Finished Looping */
+\end{lstlisting}
+\end{simpletyping}
+
+This can be rendered in assembly language like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+loop\_begin:
+	movl  a, {\eaxBare}
+	movl  b, {\ebxBare}
+	cmpl  {\eaxBare}, {\ebxBare}
+	jge   loop\_end
+
+loop\_body:
+	\#Do stuff here
+	
+	jmp loop\_begin
+
+loop\_end:
+	\#Finished looping
+\end{lstlisting}
+\end{simpletyping}
+
+The x86 assembly language has some direct support for looping as well.
+The {\ecxRegIdx} register can be used as a counter that 
+\emph{ends} with zero.  The \icode{loop\index{loop}} instruction
+will decrement {\ecxReg} and jump to a specified address unless {\ecxReg} is zero.
+For example, if you wanted to execute a statement 100 times, you would
+do this in C:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	for(i=0; i < 100; i++)
+	{
+		/* Do process here */
+	}
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language it would be written like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+loop\_initialize:
+	movl \$100, {\ecxBare}
+loop\_begin:
+	\#
+	\#Do Process Here
+	\#
+
+	\#Decrement {\ecxBare} and loops if not zero
+	loop loop\_begin 
+
+rest\_of\_program:
+	\#Continues on to here
+\end{lstlisting}
+\end{simpletyping}
+
+One thing to notice is that the \icode{loop} instruction 
+\emph{requires you to be counting backwards to zero}.  If
+you need to count forwards or use another ending number, you should use
+the loop form which does not include the \icode{loop} instruction.
+
+For really tight loops of character string operations, there is also the 
+\icode{rep\index{rep}} instruction, but we will leave learning about
+that as an exercise to the reader.
+
+\section{Structs}
+
+Structs\index{structs} are simply descriptions of memory blocks.  For example,
+in C you can say:
+
+\begin{simpletyping}
+\begin{lstlisting}
+struct person {
+	char firstname[40];
+	char lastname[40];
+	int age;
+};
+\end{lstlisting}
+\end{simpletyping}
+
+This doesn't do anything by itself, except give you ways of intelligently 
+using 84 bytes of data.  You can do basically the same thing using
+\icode{.equ\index{.equ}} directives in assembly language.  Like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	.equ PERSON\_SIZE, 84
+	.equ PERSON\_FIRSTNAME\_OFFSET, 0
+	.equ PERSON\_LASTNAME\_OFFSET, 40
+	.equ PERSON\_AGE\_OFFSET, 80
+\end{lstlisting}
+\end{simpletyping}
+
+When you declare a variable of this type, all you are doing is reserving 84
+bytes of space.  So, if you have this in C:
+
+\begin{simpletyping}
+\begin{lstlisting}
+void foo()
+{
+	struct person p;
+
+	/* Do stuff here */
+}
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language you would have:
+
+\begin{simpletyping}
+\begin{lstlisting}
+foo:
+	\#Standard header beginning
+	pushl {\ebpBare}
+	movl {\espBare}, {\ebpBare}
+
+	\#Reserve our local variable
+	subl \$PERSON\_SIZE, {\espBare} 
+	\#This is the variable's offset from {\ebpBare}
+	.equ P\_VAR, 0 - PERSON\_SIZE
+
+	\#Do Stuff Here
+
+	\#Standard function ending
+	movl {\ebpBare}, {\espBare}
+	popl {\ebpBare}
+	ret
+\end{lstlisting}
+\end{simpletyping}
+
+To access structure members, you just have to use base pointer addressing\index{base pointer addressing mode} with 
+the offsets defined above.  For example,
+in C you could set the person's age like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	p.age = 30;
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language it would look like this:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	movl \$30, P\_VAR + PERSON\_AGE\_OFFSET({\ebpBare})
+\end{lstlisting}
+\end{simpletyping}
+
+\section{Pointers}
+
+Pointers\index{pointers} are very easy.  Remember, pointers are simply the
+address\index{address} that a value resides at.  Let's start by taking a
+look at global variables.  For example:
+
+\begin{simpletyping}
+\begin{lstlisting}
+int global\_data = 30;
+\end{lstlisting}
+\end{simpletyping}
+
+In assembly language, this would be:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	.section .data
+global\_data:
+	.long 30
+\end{lstlisting}
+\end{simpletyping}
+
+Taking the address of this data in C:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	a = &amp;global\_data;
+\end{lstlisting}
+\end{simpletyping}
+
+Taking the address of this data in assembly language:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	movl \$global\_data, {\eaxBare}
+\end{lstlisting}
+\end{simpletyping}
+
+You see, with assembly language, you are almost always accessing memory 
+through pointers.  That's what direct addressing is.  To get the pointer
+itself, you just have to go with immediate mode addressing\index{immediate mode addressing}.
+
+Local variables\index{local variables} are a little more difficult, but not much.  Here is
+how you take the address of a local variable in C:
+
+\begin{simpletyping}
+\begin{lstlisting}
+void foo()
+{
+	int a;
+	int *b;
+
+	a = 30;
+
+	b = &amp;a;
+
+	*b = 44;
+}
+\end{lstlisting}
+\end{simpletyping}
+
+The same code in assembly language:
+
+\begin{simpletyping}
+\begin{lstlisting}
+foo:
+	\#Standard opening
+	pushl {\ebpBare}
+	movl  {\espBare}, {\ebpBare}
+
+	\#Reserve two words of memory
+	subl  \$8, \$esp
+	.equ A\_VAR, -4
+	.equ B\_VAR, -8
+
+	\#a = 30
+	movl \$30, A\_VAR({\ebpBare})
+
+	\#b = &amp;a
+	movl \$A\_VAR, B\_VAR({\ebpBare})
+	addl {\ebpBare}, B\_VAR({\ebpBare})
+
+	\#*b = 30
+	movl B\_VAR({\ebpBare}), {\eaxBare}
+	movl \$30, ({\eaxBare})
+
+	\#Standard closing
+	movl {\ebpBare}, {\espBare}
+	popl {\ebpBare}
+	ret
+\end{lstlisting}
+\end{simpletyping}
+
+As you can see, to take the address of a local variable, the address has to
+be computed the same way the computer computes the addresses in base 
+pointer addressing.  There is an easier way - the processor provides the
+instruction \icode{leal\index{leal}}, which stands for "load effective address\index{effective address}".
+This lets the computer compute the address, and then load it wherever you want.
+So, we could just say:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	\#b = &amp;a
+	leal A\_VAR({\ebpBare}), {\eaxBare}
+	movl {\eaxBare}, B\_VAR({\ebpBare})
+\end{lstlisting}
+\end{simpletyping}
+
+It's the same number of lines, but a little cleaner.  Then, to use
+this value, you simply have to move it to a general-purpose register
+and use indirect addressing\index{indirect addressing mode}, as shown in the example above.
+
+\section{Getting GCC to Help}
+
+One of the nice things about GCC\index{GCC} is its ability to spit out assembly
+language code.  To convert a C language file to assembly, you can simply
+do:
+
+\begin{simpletyping}
+\begin{lstlisting}
+gcc -S file.c
+\end{lstlisting}
+\end{simpletyping}
+
+The output will be in \icodefilename{file.s}.  It's not the most
+readable output - most of the variable names have been removed and replaced
+either with numeric stack locations or references to automatically-generated
+labels.  To start with, you probably want to turn off optimizations with
+\icode{-O0} so that the assembly language output will follow
+your source code better.
+
+Something else you might notice is that GCC reserves more stack space
+for local variables than we do, and then AND's {\espRegIdx}
+\footnote{Note that different versions of GCC do this differently.  
+}
+This is to increase memory and cache efficiency by double-word aligning 
+variables.
+
+Finally, at the end of functions, we usually do the following instructions
+to clean up the stack before issuing a \icode{ret\index{ret}} instruction:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	movl {\ebpBare}, {\espBare}
+	popl {\ebpBare}
+\end{lstlisting}
+\end{simpletyping}
+
+However, GCC output will usually just include the instruction 
+\icode{leave\index{leave}}.  This instruction is simply the combination
+of the above two instructions.  We do not use \icode{leave}
+in this text because we want to be clear about exactly what is happening
+at the processor level.
+
+I encourage you to take a C program you have written and compile it
+to assembly language and trace the logic.  Then, add in optimizations
+and try again.  See how the compiler chose to rearrange your program
+to be more optimized, and try to figure out why it chose the arrangement
+and instructions it did.
+

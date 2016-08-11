@@ -1,0 +1,359 @@
+\chapter{Reading and Writing Simple Records}
+\label{records}
+
+As mentioned in \autoref{filesch},
+many applications deal with data that is \emph{persistent\index{persistent}} - 
+meaning that the data lives longer than the program by being stored on disk 
+in files.  You can shut down the program and open it back up, and you are
+back where you started.  Now, there are two basic kinds of persistent
+data - structured and unstructured.  Unstructured data\index{unstructured data} is like what we
+dealt with in the \icode{toupper} program.  It just dealt with text files that
+were entered by a person.  The contents of the files weren't usable by
+a program because a program can't interpret what the user is trying to
+say in random text.
+
+Structured data\index{structured data}, on the other hand, is what computers excel at handling.
+Structured data is data that is divided up into fields\index{fields} and records\index{records}.  For the most
+part, the fields and records are fixed-length.  Because the data is
+divided into fixed-length records and fixed-format fields, the computer can interpret
+the data.  Structured data can contain variable-length fields,
+but at that point you are usually better off with a database\index{database}.
+\footnote{A database is a program which handles persistent structured data for you.
+You don't have to write the programs to read and write the data to disk,
+to do lookups, or even to do basic processing.  It is a very high-level
+interface to structured data which, although it adds some overhead and
+additional complexity, is very useful for complex data processing tasks.
+References for learning how databases work are listed in \autoref{wherenextch}.
+}
+
+This chapter deals with reading and writing simple fixed-length records\index{records}.
+Let's say we wanted to store some basic information about people
+we know.  We could imagine the following example fixed-length record about people:
+
+\begin{itemize}\item Firstname - 40 bytes 
+\item Lastname - 40 bytes 
+\item Address - 240 bytes 
+\item Age - 4 bytes 
+\end{itemize}
+
+In this, everything is character data except for the age, which is
+simply a numeric field, using a standard 4-byte word (we could just
+use a single byte for this, but keeping it at a word makes it easier
+to process).
+
+In programming, you often have certain definitions that you will use
+over and over again within the program, or perhaps within several
+programs.  It is good to separate these out into files that are 
+simply included into the assembly language files as needed.  For
+example, in our next programs we will need to access the different
+parts of the record above.  This means we need to know the offsets\index{offsets}
+of each field from the beginning of the record in order to access 
+them using base pointer addressing\index{base pointer addressing mode}.
+The following constants describe the offsets to the above structure.
+Put them in a file named
+\icodefilename{record-def.s}:
+
+\begin{simpletyping}
+\lstinputlisting{record-def}
+\end{simpletyping}
+
+In addition, there are several constants that we have been defining over
+and over in our programs, and it is useful to put them in a file, so that
+we don't have to keep entering them.  Put the following
+constants\index{constants} in a file called \icodefilename{linux.s}:
+
+\begin{simpletyping}
+\lstinputlisting{linux}
+\end{simpletyping}
+
+We will write three programs in this chapter using the structure defined in \icodefilename{record-def.s}.
+The first program will build a file containing several records as defined
+above. The second program will display the records in the file.  The 
+third program will add
+1 year to the age of every record.
+
+In addition to the standard constants we will be using throughout the
+programs, there are also two functions that we will be using in 
+several of the programs - one which reads a record and one which
+writes a record.
+
+What parameters do these functions need in order to operate?  We
+basically need:
+
+\begin{itemize}\item The location of a buffer that we can read a record into 
+\item The file descriptor that we want to read from or write to 
+\end{itemize}
+
+Let's look at our reading function first:
+
+\begin{simpletyping}
+\lstinputlisting{read-record}
+\end{simpletyping}
+
+It's a pretty simple function.  It just reads data the size of our structure
+into an appropriately sized buffer from the given file descriptor.  The 
+writing one is similar:
+
+\begin{simpletyping}
+\lstinputlisting{write-record}
+\end{simpletyping}
+
+Now that we have our basic definitions down, we are ready to write
+our programs.
+
+\section{Writing Records}
+
+This program will simply write some hardcoded records to disk.
+It will:
+
+\begin{itemize}\item Open the file 
+\item Write three records 
+\item Close the file 
+\end{itemize}
+
+Type the following code into a file called \icodefilename{write-records.s}:
+\index{.rept}
+\index{.endr}
+\index{padding}
+\index{null}
+
+\begin{simpletyping}
+\lstinputlisting{write-records}
+\end{simpletyping}
+
+%  FIXME - need to add info on how to use a hexdump to read the values 
+
+This is a fairly simple program.  It merely consists of defining
+the data we want to write in the \icode{.data\index{.data}} section,
+and then calling the right system calls and function calls to
+accomplish it.  For a refresher of all of the system calls used,
+see \autoref{syscallap}.
+
+You may have noticed the lines:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	.include "linux.s"
+	.include "record-def.s"
+\end{lstlisting}
+\end{simpletyping}
+
+\index{.include}
+These statements cause the given files to basically be pasted right there
+in the code.  You don't need to do this with functions, because the
+linker\index{linker} can take care of combining functions exported with 
+\icode{.globl\index{.globl}}.  However, constants\index{constants} defined in another file
+do need to be imported in this way.
+
+Also, you may have noticed the use of a new assembler directive, 
+\icode{.rept\index{.rept}}.  This directive repeats the contents of
+the file between the \icode{.rept} and the \icode{.endr\index{.endr}}
+directives the number of times specified after \icode{.rept}.
+This is usually used the way we used it - to pad\index{pad} values in the 
+\icode{.data\index{.data}} section.  In our case, we are adding null characters\index{null characters}
+to the end of each field until they are their defined lengths.
+
+To build the application, run the commands:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as write-records.s -o write-records.o
+as write-record.s -o write-record.o
+ld write-record.o write-records.o -o write-records
+\end{lstlisting}
+\end{simpletyping}
+
+Here we are assembling two files separately, and then combining them
+together using the linker\index{linker}.  
+To run the program, just type the following:
+
+\begin{simpletyping}
+\begin{lstlisting}
+./write-records
+\end{lstlisting}
+\end{simpletyping}
+
+This will cause a file called \icodefilename{test.dat} to be created 
+containing the records.  However, since they contain non-printable characters
+(the null character, specifically), they may not be viewable by a text 
+editor.  Therefore we need the next program to read them for us.
+
+\section{Reading Records}
+
+Now we will consider the process of reading records.  In this 
+program, we will read each record and display the first name listed
+with each record.
+
+Since each person's name is a different length, we will need a function
+to count the number of characters we want to write.  Since we pad each
+field with null characters\index{null characters}, we can simply count characters until we 
+reach a null character.\footnote{If you have used C, this is what
+the \icode{strlen\index{strlen}} function does.}
+Note that this means our records must contain at least
+one null character each.  
+
+Here is the code.  Put it in a file called \icodefilename{count-chars.s}:
+
+\begin{simpletyping}
+\lstinputlisting{count-chars}
+\end{simpletyping}
+
+As you can see, it's a fairly straightforward function.  It simply 
+loops through the bytes, counting as it goes, until it hits a null 
+character.  Then it returns the count.
+
+Our record-reading program will be fairly straightforward, too.  
+It will do the following:
+
+\begin{itemize}\item Open the file 
+\item Attempt to read a record 
+\item If we are at the end of the file, exit 
+\item Otherwise, count the characters of the first name 
+\item Write the first name to \icode{STDOUT} 
+\item Write a newline to \icode{STDOUT} 
+\item Go back to read another record 
+\end{itemize}
+
+To write this, we need one more simple function - a function to write out
+a newline to \icode{STDOUT}.  Put the following code into 
+\icodefilename{write-newline.s}:
+
+\begin{simpletyping}
+\lstinputlisting{write-newline.s}
+\end{simpletyping}
+
+Now we are ready to write the main program.  Here is the code to
+\icodefilename{read-records.s}:
+
+\begin{simpletyping}
+\lstinputlisting{read-records}
+\end{simpletyping}
+
+To build this program, we need to assemble all of the
+parts and link them together:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as read-record.s -o read-record.o
+as count-chars.s -o count-chars.o
+as write-newline.s -o write-newline.o
+as read-records.s -o read-records.o
+ld read-record.o count-chars.o write-newline.o \\
+   read-records.o -o read-records
+\end{lstlisting}
+\end{simpletyping}
+
+The backslash in the first line simply means that the command continues on 
+the next line.
+You can run your program by doing \icode{./read-records}.
+
+As you can see, this program opens the file and then runs a loop of 
+reading, checking for the end of file, and writing the firstname.  
+The one construct that might be new is the line that says:
+
+\begin{simpletyping}
+\begin{lstlisting}
+	pushl  \$RECORD\_FIRSTNAME + record\_buffer
+\end{lstlisting}
+\end{simpletyping}
+
+It looks like we are combining and add instruction with a push instruction,
+but we are not.  You see, both \icode{RECORD\_FIRSTNAME} and
+\icode{record\_buffer} are constants\index{constants}.  The first is a direct
+constant, created through the use of a \icode{.equ\index{.equ}} directive,
+while the latter is defined automatically by the assembler\index{assembler} through its use
+as a label (it's value being the address\index{address} that the data that follows it will
+start at).  Since they are both constants that the assembler knows, it
+is able to add them together while it is assembling your program, so the
+whole instruction is a single immediate-mode\index{immediate mode addressing} push of a single constant.
+
+The \icode{RECORD\_FIRSTNAME} constant\index{constants} is the number of bytes
+after the beginning of a record before we hit the first name.
+\icode{record\_buffer} is the name of our buffer for holding
+records.  Adding them together gets us the address of the first name
+member of the record stored in \icode{record\_buffer}.
+
+\section{Modifying the Records}
+
+In this section, we will write a program that:
+
+\begin{itemize}\item Opens an input and output file 
+\item Reads records from the input 
+\item Increments the age 
+\item Writes the new record to the output file 
+\end{itemize}
+
+Like most programs we've encountered recently, this program is 
+pretty straightforward.\footnote{You will find that after learning
+the mechanics of programming, most programs are pretty straightforward
+once you know exactly what it is you want to do.  Most of them initialize
+data, do some processing in a loop, and then clean everything up.}
+
+\begin{simpletyping}
+\lstinputlisting{add-year}
+\end{simpletyping}
+
+You can type it in as \icodefilename{add-year.s}.  To build it, type
+the following\footnote{This assumes that you have already built
+the object files \icodefilename{read-record.o} and 
+\icodefilename{write-record.o} in the previous examples.  If not,
+you will have to do so.}:
+
+\begin{simpletyping}
+\begin{lstlisting}
+as add-year.s -o add-year.o
+ld add-year.o read-record.o write-record.o -o add-year
+\end{lstlisting}
+\end{simpletyping}
+
+To run the program, just type in the following\footnote{This is assuming you created the file in a previous run of 
+\icode{write-records}.  If not, you need to run 
+\icode{write-records} first before running this 
+program.}:
+
+\begin{simpletyping}
+\begin{lstlisting}
+./add-year
+\end{lstlisting}
+\end{simpletyping}
+
+This will add a year to every record listed in \icodefilename{test.dat}
+and write the new records to the file \icodefilename{testout.dat}.
+
+As you can see, writing fixed-length records is pretty simple.  You 
+only have to read in blocks of data to a buffer, process them, and write
+them back out.  Unfortunately, this program doesn't write the new ages
+out to the screen so you can verify your program's effectiveness.  This is because we
+won't get to displaying numbers until \autoref{linking} and
+\autoref{countingchapter}.
+After reading those you may want to come back and rewrite this program to
+display the numeric data that we are modifying.
+
+\section{Review}
+
+\section{Know the Concepts}
+
+\begin{itemize}\item What is a record? 
+\item What is the advantage of fixed-length records over variable-length records? 
+\item How do you include constants in multiple assembly source files? 
+\item Why might you want to split up a project into multiple source files? 
+\item What does the instruction \icode{incl record\_buffer + RECORD\_AGE} do?  What addressing mode is it using?  How many operands does the \icode{incl} instructions have in this case?  Which parts are being handled by the assembler and which parts are being handled when the program is run? 
+\end{itemize}
+
+\section{Use the Concepts}
+
+\begin{itemize}\item Add another data member to the person structure defined in this chapter, and rewrite the reading and writing functions and programs to take them into account.  Remember to reassemble and relink your files before running your programs. 
+\item Create a program that uses a loop to write 30 identical records to a file. 
+\item Create a program to find the largest age in the file and return that age as the status code of the program. 
+\item Create a program to find the smallest age in the file and return that age as the status code of the program. 
+\end{itemize}
+
+\section{Going Further}
+
+\begin{itemize}\item Rewrite the programs in this chapter to use command-line arguments to specify the filesnames. 
+\item Research the \icode{lseek} system call.  Rewrite the \icode{add-year} program to open the source file for both reading and writing (use \$2 for the read/write mode), and write the modified records back to the same file they were read from. 
+\item Research the various error codes that can be returned by the system calls made in these programs.  Pick one to rewrite, and add code that checks {\eaxRegIdx} for error conditions, and, if one is found, writes a message about it to \icode{STDERR} and exit. 
+\item Write a program that will add a single record to the file by reading the data from the keyboard.  Remember, you will have to make sure that the data has at least one null character at the end, and you need to have a way for the user to indicate they are done typing.  Because we have not gotten into characters to numbers conversion, you will not be able to read the age in from the keyboard, so you'll have to have a default age. 
+\item Write a function called \icode{compare-strings} that will compare two strings up to 5 characters.  Then write a program that allows the user to enter 5 characters, and have the program return all records whose first name starts with those 5 characters. 
+\end{itemize}
+
