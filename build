@@ -4,5 +4,7 @@ pdflatex PUTH.tex
 makeindex PUTH
 #pdflatex PUTH.tex
 #pdflatex PUTH.tex
-gs-noX11 -sDEVICE=pdfwrite -o PUTH_adjusted.pdf -dPDFSETTINGS=/prepress -c "<</PageOffset [0 9]>> setpagedevice"  -f PUTH.pdf
+
+
+#gs-noX11 -sDEVICE=pdfwrite -o PUTH_adjusted.pdf -dPDFSETTINGS=/prepress -c "<</PageOffset [0 9]>> setpagedevice"  -f PUTH.pdf
 
