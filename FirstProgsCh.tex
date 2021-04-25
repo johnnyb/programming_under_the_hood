@@ -614,14 +614,14 @@ converted into bytes internally).  So, if you gave the directive
 locations (bytes).  The first byte contains the numeric code for 
 \icode{H}, the second byte contains the numeric code for
 \icode{e}, and so forth.  The last character is represented
-by \icode{\\0}\index{\\0}, 
+by \icode{\\0}, 
 and it is the terminating character (it will 
 never display, it just tells other parts of the program that that's the
 end of the characters).  Letters and numbers that start with a backslash
 represent characters that are not typeable on the keyboard or easily viewable
 on the screen.  
-For example, \icode{\\n}\index{\\n} refers to the "newline"\index{newline} character which causes the computer to start output on the next line and \icode{\\t}
-\index{\\t} refers to the "tab"\index{tab} character.  All of the letters in an \icode{.ascii} directive should be in quotes.
+For example, \icode{\\n} refers to the "newline"\index{newline} character which causes the computer to start output on the next line and \icode{\\t}
+ refers to the "tab"\index{tab} character.  All of the letters in an \icode{.ascii} directive should be in quotes.
 \end{description}
 
 In our example, the assembler reserves 14 \icode{.long}s,
