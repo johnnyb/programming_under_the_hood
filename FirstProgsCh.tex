@@ -610,17 +610,17 @@ They can hold numbers between 0 and 4294967295.
 \item[\icode{.ascii\index{.ascii}}] The \icode{.ascii} directive is to enter in characters
 into memory.  Characters each take up one storage location (they are
 converted into bytes internally).  So, if you gave the directive
-\icode{.ascii "Hello there\\0"}, the assembler would reserve 12 storage
+\icode{.ascii "Hello there\bslash{}0"}\index{\bslash{}0}, the assembler would reserve 12 storage
 locations (bytes).  The first byte contains the numeric code for 
 \icode{H}, the second byte contains the numeric code for
 \icode{e}, and so forth.  The last character is represented
-by \icode{\\0}, 
+by \icode{\bslash{}0}\index{\bslash{}0}, 
 and it is the terminating character (it will 
 never display, it just tells other parts of the program that that's the
 end of the characters).  Letters and numbers that start with a backslash
 represent characters that are not typeable on the keyboard or easily viewable
 on the screen.  
-For example, \icode{\\n} refers to the "newline"\index{newline} character which causes the computer to start output on the next line and \icode{\\t}
+For example, \icode{\bslash{}n}\index{\bslash{}n} refers to the "newline"\index{newline} character which causes the computer to start output on the next line and \icode{\bslash{}t}\index{\bslash{}t}
  refers to the "tab"\index{tab} character.  All of the letters in an \icode{.ascii} directive should be in quotes.
 \end{description}
 
