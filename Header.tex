@@ -1,0 +1,203 @@
+\usepackage[top=1in,bottom=0.5in,left=0.5in,right=0.5in, paperwidth=7.5in, paperheight=9.25in]{geometry}
+%\usepackage[margin=1in, paperwidth=8.5in, paperheight=11in]{geometry}
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage{mdframed}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{mdframed}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage[hidelinks]{hyperref}
+\usepackage{needspace}
+\usepackage{dingbat}
+\usepackage{listings}
+\newcommand{\UnderscoreCommands}{\do\lstinputlisting}
+
+\makeatletter
+\@ifpackageloaded{tex4ht}{
+\usepackage[english]{babel} % Prevents underscore from causing problems with tex4ht - in the future I should include this by default before all of my checking, but since I have already proofed without it, I don't want to screw anything up.
+\newcommand{\forebook}[1]{#1}
+\newcommand{\forprintbook}[1]{}
+}{
+\newcommand{\forebook}[1]{}
+\newcommand{\forprintbook}[1]{#1}
+}
+\makeatother
+
+\usepackage[strings]{underscore}
+
+\setcounter{tocdepth}{1}
+\setlength{\parindent}{0in}
+\setlength{\parskip}{12pt}
+
+\lstset{ %
+basicstyle=\ttfamily,
+breakatwhitespace=true,
+breaklines=true,
+tabsize=3
+}
+
+\forprintbook{
+\def\bookpart#1{%
+  \par\newpage\cleardoublepage % Page break
+  \thispagestyle{empty}
+  \chaptermark{~}
+  \sectionmark{~}
+  \markboth{~}{~}
+  \vspace*{1in} % Vertical shift
+  \refstepcounter{part}% Next part
+  {\centering\textbf{\Huge Part \thepart}\par}% 
+  \addcontentsline{toc}{part}{{\thepart}~~~~~#1}
+  \vspace{1cm}% Vertical shift
+  {\centering \textbf{\Huge #1}\par}%
+  \vspace{2cm}% Vertical shift
+  % Some text
+}
+}
+
+\forebook{
+\def\bookpart#1{%
+%\section*{~}
+%\refstepcounter{part}% Next part
+%{\centering\textbf{\Huge Part \thepart}\par}% 
+% \part{#1}
+% \addcontentsline{toc}{part}{{\thepart}~~~~~#1}
+}
+}
+
+\forprintbook{
+\newenvironment{partintro}{\begin{mdframed}[backgroundcolor=gray!10,skipabove=\baselineskip,skipbelow=\baselineskip]%
+~\\ 
+}{%
+~\\
+\end{mdframed}
+}
+}
+
+\forebook{
+\newenvironment{partintro}{}{}
+}
+
+\newcommand{\eaxReg}{\icode{\%eax}}
+\newcommand{\eaxRegIdx}{\icode{\%eax}\index{\%eax}}
+\newcommand{\eaxBare}{\%eax}
+\newcommand{\ebxReg}{\icode{\%ebx}}
+\newcommand{\ebxRegIdx}{\icode{\%ebx}\index{\%ebx}}
+\newcommand{\ebxBare}{\%ebx}
+\newcommand{\ecxReg}{\icode{\%ecx}}
+\newcommand{\ecxRegIdx}{\icode{\%ecx}\index{\%ecx}}
+\newcommand{\ecxBare}{\%ecx}
+\newcommand{\edxReg}{\icode{\%edx}}
+\newcommand{\edxRegIdx}{\icode{\%edx}\index{\%edx}}
+\newcommand{\edxBare}{\%edx}
+\newcommand{\ediReg}{\icode{\%edi}}
+\newcommand{\ediRegIdx}{\icode{\%edi}\index{\%edi}}
+\newcommand{\ediBare}{\%edi}
+\newcommand{\esiReg}{\icode{\%esi}}
+\newcommand{\esiRegIdx}{\icode{\%esi}\index{\%esi}}
+\newcommand{\esiBare}{\%esi}
+\newcommand{\ebpReg}{\icode{\%ebp}}
+\newcommand{\ebpRegIdx}{\icode{\%ebp}\index{\%ebp}}
+\newcommand{\ebpBare}{\%ebp}
+\newcommand{\espReg}{\icode{\%esp}}
+\newcommand{\espRegIdx}{\icode{\%esp}\index{\%esp}}
+\newcommand{\espBare}{\%esp}
+\newcommand{\eflagsReg}{\icode{\%eflags}}
+\newcommand{\eflagsRegIdx}{\icode{\%eflags}\index{\%eflags}}
+\newcommand{\eflagsBare}{\%eflags}
+\newcommand{\eipReg}{\icode{\%eip}}
+\newcommand{\eipRegIdx}{\icode{\%eip}\index{\%eip}}
+\newcommand{\eipBare}{\%eip}
+\newcommand{\raxReg}{\icode{\%rax}}
+\newcommand{\raxRegIdx}{\icode{\%rax}\index{\%rax}}
+\newcommand{\raxBare}{\%ax}
+\newcommand{\axReg}{\icode{\%ax}}
+\newcommand{\axRegIdx}{\icode{\%ax}\index{\%ax}}
+\newcommand{\axBare}{\%ax}
+\newcommand{\alReg}{\icode{\%al}}
+\newcommand{\alRegIdx}{\icode{\%al}\index{\%al}}
+\newcommand{\alBare}{\%al}
+\newcommand{\ahReg}{\icode{\%ah}}
+\newcommand{\ahRegIdx}{\icode{\%ah}\index{\%ah}}
+\newcommand{\ahBare}{\%ah}
+\newcommand{\clReg}{\icode{\%cl}}
+\newcommand{\clRegIdx}{\icode{\%cl}\index{\%cl}}
+\newcommand{\clBare}{\%al}
+
+\newcommand{\icodefilename}[1]{\icode{#1}}
+
+\newcommand{\minstruction}[1]{\mbox{\texttt{#1}}}
+
+\newcommand{\reviewsection}{\newpage \section*{Review}}
+\newcommand{\applysection}{\section*{Apply What You Have Learned}}
+\newcommand{\glossterm}[1]{\textbf{#1}}
+\newcommand{\latinphrase}[1]{\textit{#1}}
+\newcommand{\icode}[1]{\texttt{\mbox{#1}}}
+\newcommand{\documentname}[1]{\emph{#1}}
+\newcommand{\jskw}[1]{\texttt{\mbox{#1}}}
+\newcommand{\jsoper}[1]{\texttt{\mbox{#1}}}
+\newcommand{\stdfunc}[1]{\texttt{\mbox{#1}}}
+\newcommand{\stdclass}[1]{\texttt{\mbox{#1}}}
+\newcommand{\stdprop}[1]{\texttt{\mbox{#1}}}
+\newcommand{\htmlattr}[1]{\texttt{\mbox{#1}}}
+\newcommand{\stdobj}[1]{\texttt{\mbox{#1}}}
+\newcommand{\tag}[1]{\icode{\mbox{<#1>}}}
+\newcommand{\hent}[1]{\icode{\mbox{\&#1;}}}
+
+\newenvironment{classdoc}[1]{\begin{figure}[H] \caption{The \stdclass{#1} Class}}{\end{figure}}
+\newenvironment{propdoc}{\textbf{Properties:} \\ \begin{tabular}{| p{0.4\textwidth} | p{0.6\textwidth} |} \hline}{\hline \end{tabular}}
+\newenvironment{methdoc}{\\ \\ \textbf{Methods:} \\ \begin{tabular}{| p{0.4\textwidth} | p{0.6\textwidth} |} \hline}{\hline \end{tabular}}
+\newenvironment{opcodetable}{\begin{tabular}{| p{0.1\textwidth} | p{0.12\textwidth} | p{0.13\textwidth} | p{0.13\textwidth} | p{0.40\textwidth} |}
+\hline
+\textbf{Opcode} & \textbf{Name} & \textbf{Operand 1} & \textbf{Operand 2} & \textbf{Description} \\
+\hline
+\hline
+}{
+\forprintbook{\hline}
+\end{tabular}
+}
+
+\newenvironment{keepsamepage}{\begin{minipage}{\textwidth}}{\end{minipage}}
+\newenvironment{typing}[1]{\begin{figure}[H] \caption{#1} \begin{mdframed}}{\end{mdframed} \end{figure}}
+\newenvironment{typingwithlabel}[2]{\begin{figure}[H] \caption{#1} \label{#2} \begin{mdframed}}{\end{mdframed} \end{figure}}
+\newenvironment{typingwithlabelnohere}[2]{\begin{figure} \caption{#1} \label{#2} \begin{mdframed}}{\end{mdframed} \end{figure}}
+\forprintbook{\newenvironment{simpletyping}{\begin{mdframed} \ttfamily}{\end{mdframed}}}
+\forebook{\newenvironment{simpletyping}{\ttfamily}{}}
+\newenvironment{practice}{\begin{sidebar}[Practice Questions]}{\end{sidebar}}
+\newenvironment{activity}{\begin{sidebar}[Practice Activity]}{\end{sidebar}} % FIXME - need special symbols.  
+% FIXME - Need to go through and make sure I marked everything correctly as "practice" or "activity"
+\newenvironment{caveat}[1]{\begin{sidebar}[#1]}{\end{sidebar}} % FIXME - need special symbol
+
+\forprintbook{
+\newenvironment{sidebar}[1][]{%
+        \Needspace{10\baselineskip}
+        \begin{mdframed}[%
+                backgroundcolor=gray!10,
+                frametitle={\leftpointright \hskip 10pt #1},
+                frametitleaboveskip=10pt,
+                frametitlebelowskip=10pt,
+                innertopmargin=20pt,
+                innerbottommargin=10pt,
+                shadow=false,
+                shadowsize=2pt,
+                skipabove=\baselineskip,
+                skipbelow=\baselineskip,
+                linewidth=0.5pt,
+                frametitlerule=true,
+                frametitlebackgroundcolor=gray!30
+        ]%
+}{%
+        \end{mdframed}
+}
+}
+
+\forebook{
+\newenvironment{sidebar}[1][]{%
+\subsection{#1}
+}{}
+}
+
