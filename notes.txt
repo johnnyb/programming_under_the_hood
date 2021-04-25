@@ -1,0 +1,11 @@
+
+
+%% Do I need to define Internet?
+%% Do I need to define Internet Service Provider?
+%% Do I need to describe WiFi and Ethernet?
+
+% FIXME - need to check line breaks in program code before shipping
+% FIXME - enter vs return key
+% FIXME - special values such as NaN, null, undefined, and Infinity
+
+
