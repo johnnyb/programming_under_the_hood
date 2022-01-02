@@ -1,21 +1,28 @@
 * Programming Under the Hood
 
-This project is a book - it is intended to be the next edition of the popular assembly language book "Programming from the Ground Up" (PGU).
+This project has been discontinued.  Originally, I set out to update Programming from the Ground Up.  However, the move to 64-bit is actually a pretty huge rewrite.  In any case, I decided to just go ahead and *do* the rewrite.
 
-PGU has been a popular assembly language book for well over a decade, and continues to sell well.  However, it suffers from a number of problems:
+The result is a new book, *Learn to Program with Assembly*.  
+This book not only updates to modern systems and 64-bit assembly, it surpasses the old book in many ways.
+For instance, I cover many additional higher-level language features and how they are could be implemented from an assembly language perspective.
 
-1) Poor editing - the original editor fell ill during the process, so the book is, essentially, unedited.  I have even found a place where a paragraph stops mid-sentence.  This needs fixing.
+This includes:
+ * Object-oriented programming
+ * Exception handling
+ * Garbage collection
+ * etc.
 
-2) 64-bit support - the book focuses on 32-bit.  32 bit programming will probably continue to be the focus, but there certainly needs to be some content added for 64-bit programming.
+While the original book had a working malloc implementation, this one goes further.  
+It still has a malloc implementation, but it also adds on a pool-based allocator implementation, as well as a functioning garbage collector implementation.
 
-3) Less "intro"-ish.  Many people used this book, but few used it as their first programming book.  I plan on keeping the explanations simple, but I'm not going to pretend the user has never seen code before.
+Anyway, I hope you check it out.  The link is below:
 
-4) More details on other under-the-hood topics.  While this will still be a full assembly language introduction, there are several things that can also be known that assembly language makes easier.  For instance, we will probably add sections on various memory management schemes, C++ object layouts and virtual tables, and other fun things.  This allows for a continual addition of interesting items through the years, widens the audience, and gives more reason for actually learning assembly language.
+[Learn to Program with Assembly](https://www.amazon.com/Learn-Program-Assembly-Foundational-Programmers/dp/1484274369/)
 
-5) Conversion from Docbook XML to LaTeX.  I was a big fan of XML and thought it showed a lot of promise.  I wrote the original book using Docbook XML and DSSSL.  I thought that both were great systems (though DSSSL had some problems, I thought that it was a good overall plan).  However, I'm not sure that OpenJade (the DSSSL processor) has had a release since the last release of PGU!  It certainly seems to be a dead project.  However, LaTeX is still in active use, and it is relatively easy to find TeXnicians when you need them.  Therefore, as I have converted the rest of my publishing to LaTeX, it is time to convert this book.  This will be the first big project in the process of releasing the book.  This is especially hard because I used a lot of little-used XML features to write the book, many of which are not supported in standard XML-reading libraries!  Anyway, we will see how it goes.
+If you want to go to an even lower level, you might enjoy my *Electronics for Beginners* book:
 
-I am probably also going to try to integrate some of my IBM DeveloperWorks articles into the mix.  We will see which ones are worth porting over.  I would also like some more system-level instructions covered, but don't know if we will get to it.
+[Electronics for Beginners](https://www.amazon.com/Electronics-Beginners-Introduction-Schematics-Microcontrollers/dp/1484259785/)
 
-The goal is for this to be published by BP Learning (my company) in the "Programmer's Toolbox" series.  Current publications in that series includes "New Programmers Start Here" and "Building Scalable Web Applications Using the Cloud".  The book will have a similar cover and illustration to those.
+Anyway, thank you all for your encouragement.  I hope you enjoy the books!  If you want to see what else I'm up to, you can check out my academia page:
 
-Not all of BP Learning's books are open-source, but this one will be.
+[Academia](https://blythinstitute.academia.edu/JonathanBartlett)
